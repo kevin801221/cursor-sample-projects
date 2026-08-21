@@ -1,0 +1,501 @@
+id,email,signup_date,plan,region
+1,dhudson@example.net,2023/10/07,enterprise,新竹 
+2,,2024-12-19,enterprise,新竹
+3,,2024-12-18,starter,Hsinchu
+4,Elizabethramirez@Example.Org ,2024-06-21,starter,高雄 
+5,jasonlopez@example.net,2024-06-21,Pro,台南市
+6,blackwellmatthew@example.net,2024-06-24,Pro,高雄
+7,pcole@example.net,2024年10月16日,starter,高雄
+8,,2023-05-14,pro,新竹
+9,debbierussell@example.net,2023-12-13,enterprise,高雄 
+10,,2024-09-18,pro,台北
+11,,2024-08-03,starter,台北
+12,jlopez@example.com,2024-01-26,Pro,台南
+13,,2024-05-02,enterprise,高雄市
+14,lambertlisa@example.net,2024年11月16日,pro,高雄
+15,oguzman@example.org,2024-11-20,pro,新竹
+16,,2023-03-10,starter,台中
+17,,2024-04-06,pro,taipei
+18,,2024-08-21,enterprise,台南
+19,brownnicholas@example.net,2024/01/27,starter,台北
+20,,2024-12-22,pro,新竹
+21,ericchapman@example.org,2023-07-08, starter ,高雄
+22,  THOMAS95@EXAMPLE.ORG,2023-09-04,enterprise,台南
+23,dustin74@example.net,2023-08-27,starter,新竹
+24,barbarajohnson@example.com,2024-08-09,enterprise,高雄
+25,,2023-10-22,starter,Tainan
+26,melissa74@example.org,2023/12/29,pro,新竹
+27,monicatorres@example.org,2024年06月29日,starter, 高雄
+28, freed@example.com ,2023-12-26,enterprise,台北 
+29,elizabeth53@example.org,2024年07月12日,pro,台中
+30, vcooper@example.com ,2023-09-10,enterprise,臺南
+31,,2023-07-18,pro,台南
+265,amandaharrison@example.com,2024-03-13,Enterprise,Kaohsiung
+33,leemichelle@example.com,2024/05/31,enterprise, 台南
+34,moniquewright@example.com,2024/08/10,enterprise, 台北
+35,ksantana@example.net,2023-11-21,enterprise,台中 
+36,michaelcarrillo@example.org,2024-06-17,enterprise,台南
+37,scott55@example.org,2024-07-16,starter,台北
+38,raymond13@example.net,2024年11月30日,pro,高雄
+39,swalters@example.org,2024-10-17,pro,高雄
+40,,2024-01-05,pro,台中
+41,zlandry@example.com,2024-07-14,Enterprise,新竹
+42,  KIMMAXWELL@EXAMPLE.ORG,2023-12-31,starter,Taipei
+43,,2023-12-02,starter,高雄
+44,,2024-05-12,pro,台南
+45,bergerangela@example.org,2024-12-01,enterprise,台中市
+46,linda04@example.net,2024-04-28,starter,新竹
+47,watersdiane@example.net,2023-11-12,Pro,taipei
+48,,2024-02-10,pro,新竹
+49,allisonreyes@example.com,2023年10月23日,pro,Taichung
+50,prussell@example.net,2024-01-12,pro,新竹
+51,shelbysoto@example.net,2024年02月26日,pro,高雄
+52,ashleysuarez@example.net,2024-08-21,enterprise, 新竹
+53,,2024-12-10,pro,新竹
+54,,2024-06-29,starter,Kaohsiung
+55,veronica77@example.org,2023-07-04,ENTERPRISE,台南
+56,,2023-05-18,enterprise,台北市
+57,,2023-03-13,starter,台中
+58,fvasquez@example.net,2023-07-18,starter,新竹市
+59,pattersonamber@example.org,2024/01/05,enterprise,高雄市
+60,,2023-10-16,enterprise,台南
+61,,2024-08-25,enterprise,台南
+62,,2024-12-26,pro,台南
+63,clarkkevin@example.net,2024-08-04,pro,kaohsiung
+64,samuelhicks@example.net,2024-12-28,enterprise,Taipei
+65,,2023-05-12,starter,台中
+66,robert08@example.org,2024/03/21,pro,Taichung
+67,,2023-04-05,enterprise,高雄
+68,tgonzalez@example.net,2023-09-12,starter,台南
+69,davidkelly@example.com,2024-07-28,enterprise,台中
+70,sara69@example.net,2024-09-29,pro, 台北
+71,aaronmckay@example.net,2024年12月25日,pro,台南
+72,gonzalezwhitney@example.com,2024年10月06日,enterprise,高雄
+73,ucunningham@example.net,2024/01/31,enterprise,台南
+74,davidramos@example.com,2024-07-07,pro,高雄
+75,,2024-09-19,starter,tainan
+76,logan84@example.net,2024-07-17,starter,台中
+77,zcarrillo@example.com,2024-07-25,PRO,台北 
+78,hatfieldjeremy@example.com,2023-11-30,starter,台南
+79,allenhaley@example.net,2024-09-18,pro,taichung 
+80,lozanobrooke@example.org,2024-05-15,pro,新竹
+81,taylorcarrie@example.org,2024年09月20日,pro,台南
+82,david21@example.net,2023/07/15,pro,台中
+86,frenchgabrielle@example.net,2024/04/25,starter,台北 
+84,fcastro@example.org,2024年12月15日,pro,高雄
+85,Jonathanchang@Example.Org ,2024-06-25,starter,新竹
+86,frenchgabrielle@example.net,2024/04/25,starter,台北 
+87,jeffery18@example.com,2024年12月22日,enterprise,台中
+88,,2023-09-06,enterprise,高雄 
+89,sarah88@example.net,2024/03/05,pro,hsinchu
+90,belljoshua@example.net,2024年12月20日,enterprise,高雄
+91,collinsdanielle@example.net,2024年08月27日,starter,台南
+92,Andrealewis@Example.Com ,2024-12-04,pro,高雄
+93,Davisanita@Example.Com ,2024-08-02,pro,新竹
+94,  MCURTIS@EXAMPLE.NET,2023-10-15,starter, 台南
+95,qjames@example.net,2024-11-24,pro,台北
+96,dsimon@example.com,2024-10-31,pro,台中
+97,mcdonaldjoshua@example.org,2024-12-28,pro,台南
+98,,2024-03-30,enterprise, 新竹
+99,deannasnyder@example.com,2023-04-21,enterprise,新竹 
+100,,2024-12-29,pro,台南
+101,,2023-07-20,pro,台南市
+102,,2024-06-16,pro,高雄 
+103,,2024-12-07,enterprise, 新竹
+104,,2024-09-15,enterprise,台中 
+105,  MEGAN10@EXAMPLE.ORG,2023-04-05,starter,台北
+106,,2024-06-01,pro,新竹
+107,,2024-09-16,starter,台北
+108,,2023-07-09,enterprise, 高雄
+109,cynthiajennings@example.com,2024/09/16,starter,臺中
+110,justin68@example.com,2023-08-16,pro,台北
+111,oherring@example.org,2024-06-20,starter,高雄
+112,blowe@example.com,2024-10-23,Starter,高雄
+113,craigkara@example.com,2024-01-05,starter,高雄 
+114,cynthia41@example.com,2023/11/01,pro,台北
+115,  PORTERKRISTINE@EXAMPLE.NET,2024-04-10,starter,台北
+116,wendy53@example.org,2024/09/21,starter,新竹
+117,kristenallen@example.org,2023-08-14,starter,台南
+118,farleypatricia@example.com,2023-03-16,starter, 新竹
+48,,2024-02-10,pro,新竹
+120,  KSANDOVAL@EXAMPLE.COM,2024-10-05,starter,台北
+121,garzamonica@example.net,2024-11-10,pro,Taipei
+122,,2024-09-29,starter,台中
+123,,2024-03-09,enterprise,高雄 
+124,elizabeth97@example.net,2024年09月24日,enterprise,台南
+125, rodneydavis@example.net ,2024-01-26,enterprise,Tainan
+126,,2024-11-08,enterprise,taichung 
+127, gibsonjulie@example.com ,2024-01-23,enterprise,taipei
+128,reneeyoung@example.org,2023-09-17,Starter,新竹
+129,Michael46@Example.Org ,2024-11-23,enterprise,新竹
+130,arodriguez@example.com,2024年04月13日,enterprise,新竹 
+131,  KIRBYJOHN@EXAMPLE.NET,2023-10-29,enterprise,新竹 
+132,angelica72@example.org,2023/10/16,starter,台北
+133,rfox@example.net,2024-05-25,pro,新竹
+134,justinbarton@example.com,2024-11-11,enterprise,新竹
+135,brianna71@example.net,2023-10-07,starter,hsinchu
+136,,2024-05-06,enterprise,台南
+137,gibsonchristopher@example.org,2024-09-29,Starter,高雄
+138,,2024-10-17,enterprise,新竹
+139,howelldavid@example.net,2024-07-04,starter,台南
+140,unichols@example.org,2024年11月06日,pro,台中市
+141,anthonycarlson@example.org,2024-04-27,ENTERPRISE,臺中
+142,stephanie75@example.org,2024-11-24, pro ,taichung 
+143,,2023-12-17,pro,台南
+144,,2024-06-14,enterprise,臺北
+145,anthony90@example.net,2023-09-03,starter,台中
+146,,2023-12-08,starter,hsinchu
+147,,2023-06-15,starter,台南
+148,,2024-10-30,enterprise,台中 
+149,tara58@example.net,2024/11/29,enterprise,台北
+150,,2023-08-12,starter,新竹
+151,,2024-08-09,starter,台南
+152,cruzdana@example.org,2024/08/25,starter,台南
+153,dawnhartman@example.com,2024-11-02,STARTER,新竹
+154,jillnguyen@example.org,2024-02-22,ENTERPRISE,台北
+155,nnelson@example.net,2024-11-16,enterprise,台北
+156,,2024-12-13,starter,高雄
+157,Tylermata@Example.Net ,2024-02-04,starter,Taipei
+158,,2023-07-27,enterprise,高雄
+159,danieljones@example.com,2024-06-08,enterprise,台北市
+160,,2024-02-24,pro,新竹
+161,,2024-02-22,starter,台南
+162,brandymontoya@example.org,2024年11月30日,pro,高雄
+163,,2023-08-12,pro,台北 
+164, stephen06@example.net ,2024-08-03,enterprise,臺中
+165,woodronald@example.org,2024年03月02日,enterprise,台中
+166,gbooth@example.net,2024-06-27, starter ,Kaohsiung
+167,robertarcher@example.org,2024年09月16日,enterprise,新竹
+168, alee@example.com ,2023-06-27,pro,台南
+169,,2023-08-10,enterprise,臺南
+170,deckerlouis@example.com,2023-07-05,starter,臺南
+171,robertsonjeremiah@example.com,2023-06-05,starter,高雄
+172,sbennett@example.org,2023-12-17,STARTER,高雄
+173,,2023-12-28,pro,新竹 
+174,gwhitney@example.org,2024-08-14,starter,台南
+175,,2023-09-30,starter,臺中
+176,hansenshannon@example.net,2024/10/22,starter,台中
+177,,2023-12-07,starter,臺中
+269,edwardking@example.com,2024-08-06,enterprise,台中
+179,dcox@example.net,2023年12月28日,enterprise,台中 
+180,angelajones@example.org,2024-02-15,Pro,高雄
+181,gardnerjack@example.com,2024-03-08,enterprise,台中
+182,johnmadden@example.com,2024-02-18,starter,台南
+183,arthuranderson@example.net,2024-10-27,starter,高雄
+184,,2024-08-09,pro,Tainan
+185,,2024-04-25,starter,高雄
+186,sclark@example.com,2024/09/16,starter,Tainan
+187,worozco@example.net,2024/11/16,pro,高雄
+188,rickeyschroeder@example.net,2024-06-01,pro,新竹 
+189,laurafisher@example.org,2024-05-03,enterprise,台中
+190,  NATHANIEL31@EXAMPLE.NET,2024-10-07,starter,台南
+191,jcervantes@example.com,2023-08-30,pro,台中 
+192,Dawsonandrew@Example.Org ,2024-11-15,starter,台中
+193,,2024-06-28,enterprise,台中 
+194,petersoncody@example.com,2024-10-09, starter ,新竹
+195,harrisjames@example.org,2024/03/19,starter,台中
+196,Brian59@Example.Com ,2024-12-01,starter,台北
+197,brianaadams@example.org,2024-11-03,Starter,臺南
+198,nancyscott@example.net,2024-05-13,starter,taipei
+199,ibautista@example.com,2024/03/18,enterprise,高雄
+200,cstewart@example.net,2024-10-28,starter,台北
+201,maryturner@example.net,2024/07/01,starter,新竹
+202,bonnienguyen@example.net,2024-08-03,enterprise,台中
+203,,2024-01-06,enterprise,新竹
+204,,2024-12-02,enterprise,台南
+205,katie98@example.com,2023-07-07,starter,台北
+206, garciaoscar@example.net ,2023-04-17,enterprise,台南
+207,joansmith@example.net,2024-09-24,pro,台南
+208, timothy74@example.net ,2024-07-06,starter,台中
+209,,2024-04-05,starter,新竹 
+210,  LISARIDDLE@EXAMPLE.ORG,2024-02-28,enterprise,台中市
+211,allenalan@example.net,2024/03/15,pro,taichung 
+212,devin04@example.com,2023/08/18,pro,Taipei
+213,rarias@example.net,2023年10月20日,starter,台南市
+214,  EVANSRICHARD@EXAMPLE.ORG,2023-12-12,pro,台南
+215,jillianhamilton@example.com,2024-11-29,starter,新竹市
+216,Amberkennedy@Example.Org ,2024-06-01,enterprise,高雄
+217,jesse35@example.org,2024-10-05,starter,新竹
+218,,2023-11-06,enterprise,新竹
+219,,2023-03-05,enterprise,高雄
+220,brianna96@example.com,2024/06/17,starter,台南市
+221,,2024-10-29,starter, 高雄
+255,bonillapenny@example.org,2023年06月25日,pro,台中市
+223,jason12@example.net,2024-11-18,enterprise,台北 
+224,harpermichelle@example.net,2024-06-13, starter ,高雄 
+225,meghan57@example.net,2024-04-24,pro,hsinchu
+226,zunigakelsey@example.net,2023年08月13日,enterprise,台南
+227,alec03@example.net,2024年10月03日,starter,高雄
+228,,2024-01-26,enterprise,Hsinchu
+229,juliewilliams@example.net,2024/04/28,enterprise,新竹市
+230,,2024-10-18,pro,高雄 
+231,susanhill@example.com,2024-02-02,starter,Kaohsiung
+232,sarah73@example.org,2024年10月01日,pro,新竹市
+233, jacobwilson@example.net ,2024-11-26,enterprise,高雄
+234,thomas32@example.org,2024-09-15,enterprise,新竹市
+235,holly86@example.org,2024-07-31,STARTER,台北
+236,stacyturner@example.com,2024/04/26,starter,taipei
+237,david98@example.org,2023/09/25,enterprise,新竹
+238,,2024-04-29,enterprise,台北
+239,Hallnicholas@Example.Com ,2024-03-13,enterprise,kaohsiung
+240,ystevenson@example.net,2024年04月18日,starter,Taipei
+241,leslie01@example.org,2023-05-23,enterprise,tainan
+242,johnsonjeremy@example.org,2024-10-10,pro, 台南
+243,boyderic@example.net,2023-05-09,enterprise,台南
+244,pamelasullivan@example.org,2024-01-08,enterprise,臺中
+245,yeseniarichard@example.org,2023-12-01,enterprise,台北
+246,claycharles@example.com,2023/09/09,starter,台南
+247,lisa87@example.com,2024/03/24,starter,高雄
+248,Mary47@Example.Com ,2024-03-19,enterprise,高雄
+249,laurenrodriguez@example.com,2024/01/09,starter,台北 
+250,xvalencia@example.org,2024-12-24,pro,新竹
+251,,2023-10-16,enterprise,Taipei
+252,,2024-11-22,starter,台中市
+253,alvin02@example.org,2024-11-19,starter,高雄
+254, deancraig@example.com ,2024-12-18,pro,台中 
+255,bonillapenny@example.org,2023年06月25日,pro,台中市
+256,oevans@example.org,2024-10-21,enterprise,台北
+257,theresa83@example.net,2023/12/22,enterprise,台北 
+258,rlyons@example.org,2024-04-28,PRO,taichung 
+259,,2024-07-08,pro,新竹
+260,rita49@example.org,2024-09-25,enterprise,新竹
+261,michael46@example.com,2024年05月08日,starter,Taipei
+262,ogutierrez@example.net,2024/02/04,starter,台南
+263,  YOUNGDAVID@EXAMPLE.ORG,2024-06-02,pro,台南
+264,,2023-12-07,starter,台中
+265,amandaharrison@example.com,2024-03-13,Enterprise,Kaohsiung
+266,,2024-10-25,enterprise, 高雄
+267,sarahmann@example.org,2024-03-20,pro,Hsinchu
+268,,2024-08-01,pro,台北
+269,edwardking@example.com,2024-08-06,enterprise,台中
+270,bryantrebekah@example.com,2024/01/21,enterprise,台中
+271,brandonbrown@example.org,2024-11-22,pro,高雄
+272,tabitha87@example.net,2023-12-22,pro,新竹
+273,butlerdaniel@example.net,2024/08/04,enterprise,taichung 
+274,david90@example.net,2024/05/25,pro,Taipei
+275,,2023-11-30,pro,台南
+276,lgill@example.com,2024/04/09,enterprise,台中
+277,wlindsey@example.net,2024/03/29,pro,新竹
+278,ann07@example.com,2024/06/10,enterprise,台南
+279,,2023-11-22,starter,台中
+280,tammy31@example.net,2024-09-16,starter,新竹
+281,Christopher91@Example.Com ,2024-02-22,pro,高雄 
+282,brent02@example.org,2023年09月27日,enterprise,Taipei
+283,,2023-09-14,pro,新竹
+284,kelleymisty@example.com,2024-06-12,pro,台南
+471,jessica04@example.com,2023-12-23,ENTERPRISE,Tainan
+286,ipayne@example.com,2024-06-11,starter,臺中
+287,scottchristopher@example.com,2024-12-27,starter,台中
+288,caitlynrobbins@example.net,2023/11/13,pro,台南
+289,mcclurekevin@example.org,2024年08月01日,starter,taipei
+290,,2024-07-03,enterprise,hsinchu
+291, gonzalezcheyenne@example.org ,2024-08-03,pro, 新竹
+292,dhartman@example.net,2023-11-28,enterprise,台北 
+293,,2024-12-17,starter,台南
+294, gharris@example.org ,2023-10-17,starter,台北
+295,,2023-12-20,enterprise,台南
+296,,2024-09-18,enterprise,台南
+297,jgarcia@example.com,2023-11-22,ENTERPRISE, 新竹
+298,john81@example.com,2023/01/08,starter,新竹
+299,stevendoyle@example.org,2024-04-27,enterprise,台北
+300,andrew46@example.com,2024-10-03,starter,新竹
+301,,2024-11-12,enterprise,台中
+302,hicksmichelle@example.net,2023/11/29,enterprise,台北
+303,,2024-11-05,starter,台南
+304, nicholsralph@example.org ,2024-03-01,pro,Hsinchu
+305,Jacob35@Example.Org ,2023-07-22,starter,台北
+306,,2024-10-05,enterprise,台中
+307,amanda83@example.com,2023-02-05,starter, 新竹
+308,hernandezjamie@example.net,2023-09-30,STARTER,台中
+309,,2024-04-15,starter,台北
+310,,2024-03-23,enterprise,台北
+311,simsjose@example.net,2024-11-21,starter,台北
+312,imiller@example.com,2024-10-09,enterprise,新竹
+313,,2023-12-26,pro,台南
+262,ogutierrez@example.net,2024/02/04,starter,台南
+315,Pparker@Example.Org ,2024-12-05,starter,高雄
+316,,2024-09-16,starter,高雄
+317,,2024-07-19,starter,高雄
+318,,2023-09-09,enterprise,臺南
+319,,2024-05-24,enterprise,hsinchu
+320,solomonshawna@example.org,2023-10-28,enterprise,taichung 
+321,,2023-03-12,starter,高雄
+322,,2024-05-30,enterprise,高雄
+323,catherinedavidson@example.org,2023-02-28,pro,台南
+324,,2023-11-08,enterprise,台北
+325,,2023-06-25,enterprise,台南
+326,ywhite@example.com,2024/06/23,starter,台北
+327,,2023-03-09,pro,臺南
+328,Kevinbond@Example.Org ,2024-12-21,pro,台中
+329,jordanallison@example.org,2024年06月17日,enterprise,台南
+330,qhale@example.org,2023/07/10,enterprise,新竹
+331,joseph23@example.net,2024-12-27,Starter,高雄
+332,,2023-09-27,enterprise,hsinchu
+333,samanthapatterson@example.com,2023-12-18,pro, 高雄
+334,,2024-01-24,enterprise,台北
+335,olsoncharles@example.com,2024/04/07,pro,taichung 
+336,weberjessica@example.net,2024-03-03,pro,高雄
+337,,2024-02-09,pro,高雄
+338,lutzdavid@example.com,2024-08-26,STARTER,高雄
+339,Bryan06@Example.Org ,2024-12-05,starter,高雄 
+340, ibrown@example.org ,2024-03-09,starter, 高雄
+387,ischroeder@example.net,2024-05-05,starter,Tainan
+342,,2023-09-01,enterprise,高雄
+343,,2024-03-07,pro,台南
+344,,2024-08-26,pro,台北
+345,deborahwest@example.org,2023年04月26日,starter,高雄市
+346,vernonroberts@example.com,2023-12-02,pro,tainan
+347,,2024-10-26,pro,台中市
+348,  MARGARET03@EXAMPLE.ORG,2024-10-12,pro,新竹
+349,lisawood@example.org,2024年09月05日,pro,高雄
+350,anthonyburgess@example.com,2023-09-09, pro ,台中
+351,gilbertbarker@example.net,2024-08-10,starter,台中
+352,leewilliam@example.com,2024年05月30日,pro,台北
+353,joshuahart@example.com,2024-04-08, enterprise ,Kaohsiung
+354,angela05@example.org,2024/01/25,enterprise,新竹
+355,wpotter@example.org,2024-06-30,enterprise,台南
+356,thomasjohn@example.com,2023/11/28,enterprise,新竹
+357,rtaylor@example.net,2024-06-21,starter,台南
+358,cody68@example.com,2023-06-06, pro ,高雄
+359,ricardo28@example.com,2024年06月16日,enterprise,台北
+360,,2023-06-29,starter,台中
+361,,2023-09-03,starter,台中
+362,,2024-05-02,pro,高雄市
+363,amber47@example.net,2023/12/01,starter, 新竹
+364,ecarroll@example.com,2023/06/19,starter, 高雄
+365,,2024-05-06,starter,台北
+366,teresa95@example.com,2023-05-07,pro,高雄市
+367,Amoore@Example.Com ,2023-07-15,pro,新竹
+368,ashley92@example.com,2024-10-07,pro,台中 
+369, fbowman@example.net ,2023-12-09,enterprise,台北
+370,thomasjason@example.net,2024/03/16,enterprise,高雄
+371,jennagonzalez@example.org,2023-07-12,pro,Hsinchu
+372,Rwhite@Example.Com ,2023-08-02,starter,新竹 
+373,  JUSTIN12@EXAMPLE.ORG,2024-10-26,enterprise,台中
+374,marydominguez@example.org,2023/08/12,starter,台北市
+375,  GPITTS@EXAMPLE.ORG,2024-10-24,enterprise,台中
+376,cohenmelissa@example.org,2024-08-30,starter,高雄
+377,,2023-05-25,starter,台南
+378,william07@example.org,2023-08-14,starter,新竹市
+379,gscott@example.net,2024年08月16日,pro,taipei
+380,aaronsmith@example.com,2024/11/18,enterprise,台南
+381,upatterson@example.net,2024-10-20,enterprise,新竹市
+382,,2024-06-11,enterprise,tainan
+383,,2024-06-06,pro,台北
+384,meganconner@example.net,2023-05-09, enterprise ,台中
+385,,2024-08-18,pro,新竹
+386,,2024-08-15,pro,台南
+387,ischroeder@example.net,2024-05-05,starter,Tainan
+388,,2023-02-23,enterprise,台北
+389,,2024-08-03,enterprise,台中 
+390,caitlinflores@example.org,2024-07-23,pro,台南
+391,heather71@example.org,2024-08-10,starter,Tainan
+392,kcarroll@example.net,2023-11-22,pro,台中
+393,maxwelljessica@example.com,2024-03-01,enterprise,新竹
+187,worozco@example.net,2024/11/16,pro,高雄
+395,lee28@example.org,2024-06-17,Pro,Taipei
+396,qholder@example.com,2024-10-09,pro,台南
+397,stonematthew@example.org,2024-09-19,enterprise,新竹 
+398,elizabeth10@example.org,2024/03/14,pro,Taipei
+399,hmelendez@example.net,2024-12-08,enterprise,台北
+400,xwalker@example.org,2024/10/10,pro,台北
+401,paul13@example.com,2024-12-04, pro ,台中
+402,kevinhorton@example.net,2024/07/27,starter,高雄
+403,,2024-06-14,pro,台北
+404,jill74@example.org,2024-09-16,starter,Taichung
+405,,2024-02-01,pro,臺南
+406, stewartnicholas@example.net ,2023-11-21,starter,Taichung
+407,,2024-10-12,pro,Taichung
+408,brianross@example.org,2024年05月11日,starter,台北
+409, yroth@example.org ,2024-07-06,pro,台南市
+410,,2024-10-16,enterprise,高雄
+411,jamiewalker@example.net,2024-10-09,pro, 台南
+412,whitney34@example.net,2024/06/27,pro,高雄
+413,  APRIL20@EXAMPLE.NET,2023-09-07,enterprise,台北
+414,floresjessica@example.org,2023年08月09日,starter,台北
+415,stevehays@example.org,2024/08/20,enterprise,台北
+416,gzimmerman@example.com,2024/05/26,pro, 高雄
+417,roseadrian@example.org,2024-02-01,PRO,hsinchu
+418, heather97@example.org ,2024-05-03,enterprise,台南
+419,,2024-07-25,starter,台南
+420,,2023-05-23,starter,hsinchu
+421,melindarice@example.org,2024年03月31日,enterprise,新竹市
+422,,2024-07-02,pro,hsinchu
+423,austin68@example.net,2023-07-08, starter , 高雄
+424,,2024-04-29,starter,台北
+425,brownjames@example.com,2024-07-03,ENTERPRISE,台中
+426,toddkimberly@example.org,2024/10/09,pro,台北
+427,chavezmanuel@example.net,2024/01/20,starter,台北
+428,wilkinsjeffrey@example.com,2024-03-14,pro,台北
+429,,2024-10-09,enterprise,Tainan
+430,,2024-02-22,pro,台中
+431,jessica24@example.org,2024-09-12,STARTER,新竹 
+432,amanda56@example.org,2024年09月11日,starter,新竹
+433,Isabellawilliams@Example.Org ,2023-08-10,pro,台南
+434,,2024-09-29,pro,台北
+435,juan00@example.org,2024-12-08,Pro,taichung 
+436,Kristarios@Example.Net ,2024-08-03,starter,Tainan
+437,richardsonvalerie@example.com,2023-11-25,pro,hsinchu
+438,,2023-11-21,starter,新竹
+439,,2024-12-09,starter,台中
+440,fisherjoy@example.net,2024/04/28,starter,高雄市
+441,,2024-03-24,starter, 台北
+442,anthonygeorge@example.org,2023-04-13,enterprise, 新竹
+443,,2024-06-19,enterprise,台南
+444,,2024-11-30,pro,高雄
+53,,2024-12-10,pro,新竹
+446,  SARAHALI@EXAMPLE.COM,2024-01-20,enterprise,Tainan
+447,,2024-12-21,starter,高雄
+448,thompsonmatthew@example.com,2024年11月13日,enterprise,hsinchu
+449,ranthony@example.org,2023年06月23日,pro,Hsinchu
+450,  QROACH@EXAMPLE.COM,2024-09-05,enterprise,台南
+451,,2024-03-19,starter,臺南
+452,Mguerra@Example.Com ,2024-01-17,pro,台中
+453,pittmanjoseph@example.org,2024-08-11,Starter,台南
+454,  BERNARDGONZALEZ@EXAMPLE.ORG,2023-06-04,pro,高雄
+455,,2023-10-10,enterprise,新竹
+456,dscott@example.com,2024-03-23,starter,台中
+457,,2024-06-22,enterprise,新竹
+458,andrewsbecky@example.com,2023-08-30, pro ,台南
+459,,2023-02-15,enterprise,台南
+460,carrraymond@example.net,2024-11-14,starter,台北
+461,rcross@example.com,2023-12-30,starter,台北
+462,dawnweaver@example.net,2024/04/08,starter,臺中
+463,bowmanluis@example.net,2024-06-08,pro,高雄 
+464,,2024-06-03,enterprise,臺北
+465,,2024-09-30,pro, 新竹
+466,,2024-08-19,enterprise,台南
+467,lshepherd@example.org,2023年09月07日,pro,台南
+468,johnsonsarah@example.net,2024/08/16,pro,台北市
+469,,2024-12-22,pro,台北
+470,jacqueline35@example.net,2023年11月18日,enterprise,高雄
+471,jessica04@example.com,2023-12-23,ENTERPRISE,Tainan
+472,ihinton@example.net,2024年12月26日,enterprise,新竹
+473,,2023-09-12,enterprise,台南
+474,woneal@example.org,2024-10-31,starter,hsinchu
+475,kingbrandon@example.com,2023年09月05日,starter,台南市
+476,iandrade@example.org,2024/10/14,starter, 新竹
+477,fcollins@example.com,2023年11月21日,pro,新竹
+478,dorseyjenny@example.com,2024-03-15,pro,Tainan
+479,ellisjoyce@example.com,2024-02-13,pro,高雄市
+480,,2024-08-29,pro,Kaohsiung
+481,justinrocha@example.com,2023-02-15,ENTERPRISE,高雄
+482,guerrerojames@example.net,2023-06-22,pro,高雄
+483,hollowaykimberly@example.net,2024/06/17,starter,臺南
+484,milleralexander@example.com,2023年10月18日,enterprise,台北
+485,,2024-12-29,pro,高雄
+486,,2024-01-17,starter,高雄
+487, peter23@example.org ,2023-05-27,pro,高雄市
+488,vtorres@example.org,2024-07-02,Pro,台南
+489,meredithmcdaniel@example.com,2024-07-04,starter,新竹
+490,,2023-12-22,starter,臺南
+491,,2023-12-06,pro,新竹市
+492,dfinley@example.net,2024-07-31,starter,台南市
+493,lindsayli@example.org,2023-11-06,starter,高雄
+494,,2024-11-10,enterprise,台南
+495,lisajames@example.org,2024-04-09,ENTERPRISE,新竹
+496,lisagray@example.com,2024-08-21,enterprise,台南市
+497,,2024-11-08,pro,台南
+498,perryjason@example.com,2024年08月02日,pro,tainan
+499,pnorris@example.com,2024年11月23日,pro,高雄
+500,rharrington@example.com,2024/12/07,pro,新竹

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highlight AI - Chrome 擴充功能課堂放映模擬器</title>
+  <link rel="stylesheet" href="content.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --border: #1f2937;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+      --primary: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 30px 20px; line-height: 1.6; }
+    .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+    header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px; }
+    h1 { font-size: 24px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 12px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 3px 8px; border-radius: 9999px; }
+
+    /* Webpage content sandbox */
+    .article-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+    }
+    .article-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+    .article-meta { font-size: 12px; color: var(--text-sub); margin-bottom: 20px; }
+    .article-p { font-size: 15px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.8; user-select: text; }
+    .highlight-hint { background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--primary); padding: 10px 14px; font-size: 13px; color: #93c5fd; margin-bottom: 20px; border-radius: 0 8px 8px 0; }
+
+    /* Sidebar extension panel simulation */
+    .panel-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      height: fit-content;
+    }
+    .panel-title { font-size: 15px; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .log-box {
+      background: #0b0f19;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #34d399;
+      height: 160px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    .saved-list { display: flex; flex-direction: column; gap: 10px; }
+    .saved-item { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🧩 Highlight AI <span class="badge">課堂互動模擬器</span></h1>
+        <p style="color: var(--text-sub); font-size: 13px; margin-top: 4px;">無需安裝擴充功能，即時體驗 Manifest V3 選字浮動工具列與 Service Worker 安全代理</p>
+      </div>
+      <div style="font-size: 12px; color: var(--text-sub);">
+        🛡️ 金鑰隔離：<strong>Content Script 0% Key Access</strong>
+      </div>
+    </header>
+
+    <!-- Main Content for Selecting Text -->
+    <div class="article-box">
+      <div class="highlight-hint">
+        💡 <strong>操作教學：</strong>請在下方文章中用滑鼠選取任意一段文字（例如「Manifest V3 的核心精神...」），將會自動跳出擴充功能浮動工具列！
+      </div>
+
+      <h2 class="article-title">現代 Chrome 擴充功能安全架構與 Manifest V3 演進</h2>
+      <div class="article-meta">發佈於 2026 年 · 科技架構特刊</div>
+
+      <p class="article-p">
+        在過去 Manifest V2 時代，許多擴充功能開發者習慣將 OpenAI 或雲端服務的 API Key 直接寫死在 Content Script 中。這種做法存在極大的資安隱患——因為 Content Script 運行在目標網頁的 DOM 環境中，惡意網站只需透過簡單的 JavaScript 注入或 DOM 遍歷，就能輕易竊取使用者的私密金鑰。
+      </p>
+
+      <p class="article-p">
+        Manifest V3 的核心精神是「環境隔離與最小權限原則」。我們將擴充功能拆解為三個角色：派往外部網頁的「實習生」Content Script、駐守本機保險箱的「總管」Service Worker，以及隨身攜帶的「對講機」Popup 面板。實習生只負責監聽選字動作，當需要進行 AI 摘要或翻譯時，透過 chrome.runtime.sendMessage 將文字送交總管。
+      </p>
+
+      <p class="article-p">
+        總管在獨立且受信任的 Service Worker 環境中，從 chrome.storage 安全讀取金鑰，代理發送 HTTPS 請求至 LLM 模型 API，最後將乾淨的摘要結果回傳給實習生呈現。透過此架構，金鑰永遠不會暴露給任何第三方網頁。
+      </p>
+    </div>
+
+    <!-- Sidebar Simulation Panel -->
+    <div class="panel-box">
+      <div class="panel-title">
+        <span>📡 Service Worker 通訊日誌</span>
+      </div>
+      <div class="log-box" id="msgLog">
+        [系統] Service Worker 監聽中...<br>
+        [安全] Content Script 隔離就緒<br>
+        [設定] 模式: 離線 Mock AI (課堂放映)
+      </div>
+
+      <div class="panel-title">
+        <span>💾 擴充儲存庫筆記</span>
+        <span id="hlCount" style="font-size: 11px; color: var(--text-sub);">0 則</span>
+      </div>
+      <div class="saved-list" id="savedList">
+        <div style="text-align: center; color: var(--text-sub); font-size: 12px; padding: 12px 0;">尚無儲存筆記</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mock Chrome API Adapter for Web Simulator -->
+  <script>
+    const mockStorage = {
+      highlights: []
+    };
+
+    window.chrome = {
+      runtime: {
+        sendMessage: (msg, cb) => {
+          logMsg(`📥 [收到訊息] Type: ${msg.type}`);
+          if (msg.type === 'ANALYZE_TEXT') {
+            logMsg(`🤖 [Service Worker] 呼叫 Mock LLM 摘要...`);
+            setTimeout(() => {
+              const text = msg.payload.text;
+              const action = msg.payload.action;
+              let result = '';
+              if (action === 'translate') {
+                result = `【AI 繁體中文翻譯】\n"${text}"\n→ 譯文：「這是一段經過安全 Service Worker 代理所生成的翻譯內容。」`;
+              } else {
+                result = `【AI 智慧重點摘要】\n1. 核心論點：${text.slice(0, 35)}...\n2. 安全架構：本請求完全由 Service Worker 代理，網頁 JS 無法攔截 API 金鑰。\n3. 建議行動：可點擊儲存按鈕將此段筆記記錄至本機擴充庫。`;
+              }
+              logMsg(`📤 [回傳結果] 成功生成摘要 (${result.length} 字)`);
+              if (cb) cb({ success: true, data: result });
+            }, 600);
+          } else if (msg.type === 'SAVE_HIGHLIGHT') {
+            mockStorage.highlights.unshift({
+              id: 'hl_' + Date.now(),
+              text: msg.payload.text,
+              summary: msg.payload.summary,
+              createdAt: new Date().toISOString()
+            });
+            logMsg(`💾 [儲存成功] 筆記總數: ${mockStorage.highlights.length}`);
+            updateSidebar();
+            if (cb) cb({ success: true });
+          }
+        }
+      }
+    };
+
+    function logMsg(txt) {
+      const el = document.getElementById('msgLog');
+      el.innerHTML += `<br>${txt}`;
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function updateSidebar() {
+      const list = mockStorage.highlights;
+      document.getElementById('hlCount').textContent = `${list.length} 則`;
+      const container = document.getElementById('savedList');
+      if (list.length === 0) return;
+      container.innerHTML = list.map(item => `
+        <div class="saved-item">
+          <div style="color:#60a5fa; font-weight:600; margin-bottom:4px;">"${item.text.slice(0, 25)}..."</div>
+          <div style="color:#94a3b8; font-size:11px; white-space:pre-wrap;">${item.summary.slice(0, 70)}...</div>
+        </div>
+      `).join('');
+    }
+  </script>
+  <script src="content.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+
+# TaskBoard 安全紅線
+
+## 絕對禁止
+1. `SUPABASE_SERVICE_ROLE_KEY` 不得出現在 `app/` 底下任何 client component
+2. 不得寫 `using (true)` 或 `with check (true)` 的 RLS 政策
+3. 不得用 `service_role` 客戶端處理來自瀏覽器的請求
+
+## 一定要做
+4. 每張新表建立時，同一個 migration 內就要 `enable row level security`
+5. 任何寫入 `team_members` 的路徑，都要在資料庫層驗證邀請碼
+6. 新增政策一律補一個 `test:rls` 案例，證明跨團隊讀不到
+
+# 這六條每次請求都會附上，是這個專案唯一的 alwaysApply 規則

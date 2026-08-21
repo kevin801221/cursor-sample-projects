@@ -1,0 +1,7 @@
+---
+description: Next.js 架構慣例
+globs: ["app/**/*.tsx", "app/**/*.ts", "middleware.ts"]
+---
+- 頁面資料讀取用 Server Components；所有寫入走 Server Actions，不開放前端直呼資料庫
+- 前端與 Server Components 一律用 anon key + 使用者 session
+- 資料查詢不在前端自行過濾團隊，過濾交給 RLS

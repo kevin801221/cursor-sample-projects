@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Highlight AI - 擴充設定</title>
+  <style>
+    body { max-width: 600px; margin: 40px auto; padding: 24px; font-family: sans-serif; background: #0f172a; color: #f8fafc; }
+    h1 { font-size: 22px; font-weight: 700; color: #38bdf8; margin-bottom: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    label { font-size: 14px; font-weight: 600; color: #94a3b8; }
+    input, select, textarea { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 14px; }
+    .btn { background: #3b82f6; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .alert { padding: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; color: #34d399; font-size: 13px; display: none; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Highlight AI 擴充金鑰設定</h1>
+  <form id="settingsForm">
+    <div class="form-group">
+      <label>AI 提供者 (Provider)</label>
+      <select id="provider">
+        <option value="mock">離線 Mock 模式 (課堂放映專用，不消耗 Token)</option>
+        <option value="openai">OpenAI (GPT-4o-mini)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>API Key (安全存放於 chrome.storage.sync)</label>
+      <input type="password" id="apiKey" placeholder="sk-..." />
+    </div>
+
+    <div class="form-group">
+      <label>自訂 Prompt 摘要提示詞</label>
+      <textarea id="customPrompt" rows="3">請用繁體中文以三點總結以下選取文字的重點：</textarea>
+    </div>
+
+    <button type="submit" class="btn">💾 儲存設定</button>
+  </form>
+
+  <div id="saveAlert" class="alert">✓ 設定已成功儲存！金鑰已安全寫入擴充內部保險箱。</div>
+
+  <script src="options.js"></script>
+</body>
+</html>

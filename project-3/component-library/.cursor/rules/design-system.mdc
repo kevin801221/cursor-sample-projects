@@ -1,0 +1,14 @@
+---
+description: Design system rules - force token usage and prohibit arbitrary hex colors
+globs: ["src/components/**/*.tsx", "src/components/**/*.css"]
+alwaysApply: false
+---
+
+# Design System Rules
+
+1. **禁止寫死顏色**：嚴格禁止在 JSX / CSS 中寫死十六進位色碼（如 `#3b82f6`）或 arbitrary Tailwind classes（如 `bg-[#123456]`）。所有顏色必須來自 `tokens.colors` 或 CSS 變數 `var(--color-*)`。
+2. **間距與圓角標準化**：間距只能使用 `tokens.spacing`（xs, sm, md, lg, xl），圓角只能使用 `tokens.radii`。
+3. **無障礙優先 (A11y)**：
+   - 互動按鈕必須有 `:focus-visible` 焦點環。
+   - 表單輸入框必須關聯 `label`、`aria-invalid`、`aria-describedby`。
+   - Modal 必須支援 `Escape` 鍵關閉並鎖定焦點。

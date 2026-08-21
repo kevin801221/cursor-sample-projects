@@ -1,0 +1,26 @@
+[
+  {
+    "id": "TKT-0001",
+    "title": "會議室 3F-A 視訊設備無訊號",
+    "description": "投影畫面顯示 No Signal，HDMI 換孔也沒用。",
+    "status": "closed",
+    "priority": "low",
+    "created_at": "2026-01-12T02:15:00Z"
+  },
+  {
+    "id": "TKT-0002",
+    "title": "staging 部署後 500 錯誤",
+    "description": "canary 階段錯誤率 4%，已自動回滾，需要查 migration。",
+    "status": "in_progress",
+    "priority": "high",
+    "created_at": "2026-02-03T07:40:00Z"
+  },
+  {
+    "id": "TKT-0003",
+    "title": "新人筆電未加密",
+    "description": "資安掃描發現一台到職設備未開啟全碟加密。",
+    "status": "open",
+    "priority": "medium",
+    "created_at": "2026-02-19T01:05:00Z"
+  }
+]

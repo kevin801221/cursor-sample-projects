@@ -1,0 +1,31 @@
+# ---- 複製這份改成你自己的 config ----
+roboflow:
+  workspace: YOUR_WORKSPACE   # Roboflow workspace slug
+  project: YOUR_PROJECT       # Roboflow project slug
+  version: 1                  # dataset version 號
+  format: yolov8              # 下載格式（YOLOv8）
+  api_key_env: ROBOFLOW_API_KEY  # 從哪個環境變數讀 API key
+
+paths:
+  raw: data/raw               # 原始下載目錄
+  processed: data/processed   # 切分後目錄
+  runs: runs                  # 訓練/推論輸出
+
+dataset:
+  split: [0.7, 0.2, 0.1]      # train/val/test，和需為 1（原始已切分則沿用）
+  seed: 42
+
+train:
+  model: yolov8n.pt           # 起始權重（n/s/m/l/x）
+  epochs: 50
+  batch: 8
+  imgsz: 416
+  device: auto                # auto → mps→cuda→cpu
+
+optimize:
+  iterations: 20              # 超參搜尋輪數
+  epochs: 15                  # 每輪短訓 epochs
+
+infer:
+  conf: 0.25                  # 推論信心門檻
+  num_samples: 10             # 產出幾張視覺化

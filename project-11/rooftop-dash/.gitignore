@@ -1,0 +1,7 @@
+node_modules/
+dist/
+# demo.sh 執行時產生的暫存檔（dev server 的 port / pid / log）
+.demo-port
+.demo-server.pid
+.demo-server.log
+.DS_Store

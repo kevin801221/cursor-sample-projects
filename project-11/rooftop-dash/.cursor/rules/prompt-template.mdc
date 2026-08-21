@@ -1,0 +1,43 @@
+---
+description: 結構化 prompt 八欄位模板（叫 Agent 加功能時照抄）
+---
+
+# 八欄位模板
+
+要 Agent 加功能時，把這八欄填完再送出。欄位越具體，返工越少；
+**Do NOT 與 Done when 是最重要的兩欄**——前者畫邊界，後者定驗收。
+
+```text
+Goal:          一句話，單一目標。有「而且」就拆成兩個 prompt。
+Must ship:     這次一定要出現的東西，逐條列。
+Tech & limits: 用什麼技術、只准改哪些檔案。
+Do NOT:        這次不要做什麼（照抄 GDD 的 Scope Cut）。
+Files:         允許改動的檔案清單，其他檔案一律不准動。
+Constants:     這次新增或調整的數值，全部寫進 constants.js 的哪一組。
+Done when:     可驗證的完成條件（npm run dev 無錯誤、畫面看得到什麼）。
+Verify by:     我要怎麼親自玩一遍驗收（含邊界情況）。
+```
+
+## 實例：加金幣與出口門
+
+```text
+Goal:          加金幣收集與出口門機制。收集完當前關卡所有金幣才能打開出口門。
+Must ship:     金幣精靈群；收集判定；金幣計數（存 registry）；出口門精靈；
+               出口門判邏輯（收集完才開啟）；碰出口門進下一關；至少兩關。
+Tech & limits: Phaser 3 Arcade Physics，不加任何第三方套件。
+Do NOT:        不要做金幣掉下去、不要做金幣旋轉動畫、不要做動態關卡生成、
+               不要改玩家與敵人邏輯。
+Files:         src/scenes/PlayScene.js、src/constants.js、src/prefabs/Collectible.js
+Constants:     金幣分數與半徑放 COLLECTIBLE，門的尺寸與顏色放 DOOR，
+               關卡座標放 LEVELS。
+Done when:     npm run dev 無 console 錯誤；HUD 顯示 Coins: 3/5；
+               未收齊碰門只跳提示、收齊後門變綠且能進下一關。
+Verify by:     親自玩一遍：故意先去碰門、故意跳進坑、故意快速衝過金幣，
+               三種情況都不能出現卡住或計數錯亂。
+```
+
+## 為什麼要填 Do NOT
+
+沒填 Do NOT 的下場：「加個暫停功能」會變成「加暫停、加設定選單、
+加半透明遮罩動畫、加音量條、加暫停時的成就提示」。
+範圍蔓延不是 Agent 的錯，是指令沒有邊界。

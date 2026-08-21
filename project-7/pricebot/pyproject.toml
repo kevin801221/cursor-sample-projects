@@ -1,0 +1,23 @@
+[project]
+name = "pricebot"
+version = "1.0.0"
+description = "Ethical price monitoring crawler with SQLite history and Streamlit dashboard"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27.0",
+    "pydantic>=2.8.0",
+    "beautifulsoup4>=4.12.0",
+    "streamlit>=1.38.0",
+    "pandas>=2.2.0",
+    "loguru>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

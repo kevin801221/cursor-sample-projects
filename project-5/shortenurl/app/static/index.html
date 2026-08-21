@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortenURL - 分層架構短網址服務與點擊分析</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --surface-border: #1f2937;
+      --surface-hover: #1e293b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 1px solid var(--surface-border); }
+    h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+    .badge { font-size: 12px; background: rgba(59, 130, 246, 0.15); color: var(--primary); padding: 4px 10px; border-radius: 9999px; font-weight: 600; }
+    .nav-links a { color: var(--text-sub); text-decoration: none; font-size: 14px; font-weight: 500; margin-left: 16px; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    
+    .card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    label { font-size: 13px; font-weight: 600; color: var(--text-sub); }
+    input { background: #0b0f19; border: 1px solid var(--surface-border); color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 15px; outline: none; transition: border-color 0.15s; }
+    input:focus { border-color: var(--primary); }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn:hover { background: var(--primary-hover); }
+
+    .result-box { margin-top: 18px; padding: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .result-url { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--accent); font-weight: 600; }
+    .copy-btn { background: var(--accent); color: #064e3b; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; text-align: left; }
+    th { padding: 12px; font-size: 13px; color: var(--text-sub); border-bottom: 1px solid var(--surface-border); font-weight: 600; }
+    td { padding: 14px 12px; font-size: 14px; border-bottom: 1px solid var(--surface-border); }
+    .code-tag { font-family: 'JetBrains Mono', monospace; color: var(--primary); background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; text-decoration: none; }
+    .target-url { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-sub); }
+    .clicks-badge { font-weight: 700; color: var(--accent); background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>⚡ ShortenURL <span class="badge">FastAPI + BackgroundTask</span></h1>
+        <p style="color: var(--text-sub); font-size: 14px; margin-top: 4px;">分層架構 (Routers / Services / Repositories) · 非同步點擊分析</p>
+      </div>
+      <div class="nav-links">
+        <a href="/docs" target="_blank">📖 Swagger API 文件</a>
+        <a href="/redoc" target="_blank">📋 ReDoc</a>
+      </div>
+    </header>
+
+    <!-- Create Short URL Card -->
+    <div class="card">
+      <h2 style="font-size: 18px; margin-bottom: 16px; font-weight: 700;">🔗 建立短網址</h2>
+      <form id="shortenForm">
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="targetUrl">原始長網址 (Target URL)</label>
+            <input type="url" id="targetUrl" placeholder="https://example.com/very/long/path/to/article" required />
+          </div>
+          <div class="form-group">
+            <label for="customCode">自訂代碼 (選填)</label>
+            <input type="text" id="customCode" placeholder="promo-2026" />
+          </div>
+        </div>
+        <button type="submit" class="btn">🚀 生成短網址</button>
+      </form>
+
+      <div id="resultContainer" style="display: none;">
+        <div class="result-box">
+          <div>
+            <div style="font-size: 12px; color: var(--text-sub);">短網址已生成：</div>
+            <a id="resultLink" class="result-url" href="#" target="_blank"></a>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyResult()">📋 複製</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent URLs Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 18px; font-weight: 700;">📊 最新短網址與即時點擊量</h2>
+        <button class="btn" style="padding: 6px 12px; font-size: 13px;" onclick="loadUrls()">🔄 重新整理</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>短代碼</th>
+            <th>目標原始網址</th>
+            <th>點擊次數</th>
+            <th>建立時間</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="urlTableBody">
+          <tr><td colspan="5" style="text-align: center; color: var(--text-sub);">載入中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadUrls() {
+      try {
+        const res = await fetch('/api/v1/urls');
+        const data = await res.json();
+        const tbody = document.getElementById('urlTableBody');
+        if (!data || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-sub);">尚無資料，請先建立一組短網址</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(u => `
+          <tr>
+            <td><a href="/${u.short_code}" target="_blank" class="code-tag">/${u.short_code}</a></td>
+            <td><div class="target-url" title="${u.target_url}">${u.target_url}</div></td>
+            <td><span class="clicks-badge">${u.clicks} 次點擊</span></td>
+            <td style="color: var(--text-sub); font-size: 13px;">${new Date(u.created_at).toLocaleTimeString('zh-TW')}</td>
+            <td><a href="/api/v1/urls/${u.short_code}/stats" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 13px;">📈 查看日誌</a></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const targetUrl = document.getElementById('targetUrl').value;
+      const customCode = document.getElementById('customCode').value || undefined;
+
+      try {
+        const res = await fetch('/api/v1/shorten', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_url: targetUrl, custom_code: customCode })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.detail || '建立失敗');
+          return;
+        }
+        const resultLink = document.getElementById('resultLink');
+        resultLink.href = data.short_url;
+        resultLink.textContent = data.short_url;
+        document.getElementById('resultContainer').style.display = 'block';
+        loadUrls();
+      } catch (e) {
+        alert('連線失敗');
+      }
+    });
+
+    function copyResult() {
+      const url = document.getElementById('resultLink').href;
+      navigator.clipboard.writeText(url);
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ 已複製！';
+      setTimeout(() => btn.textContent = '📋 複製', 2000);
+    }
+
+    loadUrls();
+  </script>
+</body>
+</html>

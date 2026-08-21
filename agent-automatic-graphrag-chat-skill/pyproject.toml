@@ -1,0 +1,30 @@
+[project]
+name = "yt-graphrag-bot"
+version = "1.0.0"
+description = "YouTube/PDF/DOCX/網頁 → GraphRAG 問答機器人（教學工作流）"
+requires-python = ">=3.12"
+
+# 版本已在 Python 3.12 實測相容。>= 而非 == 是刻意的：
+# 教學專案要能跟上套件更新，真的出事時 uv.lock 才是鎖版本的地方。
+dependencies = [
+    "yt-dlp>=2026.7.4",
+    "langchain-text-splitters>=1.1.2",
+    "langchain-google-genai>=4.3.3",
+    "langchain-chroma>=1.1.0",
+    "langchain-core>=1.5.4",
+    "chromadb>=1.5.9",
+    "neo4j>=6.2.0",
+    "fastapi>=0.141.1",
+    "uvicorn[standard]>=0.34.0",
+    "requests>=2.32.0",
+    "pymupdf>=1.28.2",
+    "python-docx>=1.2.0",
+    "trafilatura>=2.2.0",
+]
+
+[project.optional-dependencies]
+# 付費路線才需要: uv sync --extra paid
+paid = ["llama-parse>=0.6.0"]
+
+[tool.uv]
+package = false

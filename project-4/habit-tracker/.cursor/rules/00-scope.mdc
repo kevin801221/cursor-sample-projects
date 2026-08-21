@@ -1,0 +1,14 @@
+---
+description: React Native and Expo habit tracker scope rules
+globs: ["src/**/*"]
+alwaysApply: true
+---
+
+# Scope Rules (UI 邊界守則)
+
+1. **嚴格禁止任意擴充未授權 UI**：不得擅自增加自訂未核可的複雜動畫庫或非標準元件，避免不同螢幕尺寸跑版。
+2. **強制開發順序**：
+   - 先定義資料模型（types/habit.ts）
+   - 再寫服務層與持久化（services/habitStorage.ts）
+   - 最後組裝元件與頁面（components/ & App.tsx）
+3. **響應式與主題相容**：所有樣式必須相容 Dark Mode 與 Light Mode，容器必須遵守 Safe Area 邊距。

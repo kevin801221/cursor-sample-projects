@@ -1,0 +1,15 @@
+---
+description: Rules for CLI tools and Telegram Bot
+globs: ["cli/**/*.js", "bot/**/*.py"]
+alwaysApply: true
+---
+
+# CLI and Telegram Bot Rules
+
+1. **CLI Exit Code 規範**：
+   - 執行成功必須以 `process.exit(0)` / `sys.exit(0)` 退出。
+   - 任何錯誤（目錄已存在、參數缺失、非預期異常）必須印出人類可讀錯誤訊息並以 `process.exit(1)` 退出。
+2. **Telegram Callback 響應規範**：
+   - 當使用者點擊 Inline Keyboard 按鈕時，Handler 必須立即呼叫 `query.answer()`，嚴禁在生成耗時圖片時讓按鈕持續轉圈等待。
+3. **圖片生成獨立模組化**：
+   - 圖片生成（指板圖/圖表）必須封裝在獨立 service 模組中，具備單元測試覆蓋。

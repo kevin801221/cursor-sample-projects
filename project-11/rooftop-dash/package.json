@@ -1,0 +1,19 @@
+{
+  "name": "rooftop-dash",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Cursor 課程 Project 11：Phaser 3 + Vite 平台跳躍遊戲（全離線，美術與音效皆由程式產生）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node physics-check.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "phaser": "^3.80.1"
+  }
+}

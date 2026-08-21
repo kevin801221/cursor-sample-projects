@@ -1,0 +1,12 @@
+{
+  "name": "scaffold-cli",
+  "version": "1.0.0",
+  "description": "Interactive CLI Project Generator with template scaffolding and exit codes",
+  "type": "module",
+  "bin": {
+    "scaffold": "./bin/scaffold.js"
+  },
+  "scripts": {
+    "start": "node ./bin/scaffold.js"
+  }
+}

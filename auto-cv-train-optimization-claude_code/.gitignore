@@ -1,0 +1,25 @@
+# secrets
+.env
+*.pem
+credentials.json
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# ML artifacts
+data/
+runs/
+*.pt
+*.onnx
+*.engine
+*.safetensors
+*.pb
+*.weights
+
+# os
+.DS_Store

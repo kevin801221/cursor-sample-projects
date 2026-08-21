@@ -1,0 +1,19 @@
+---
+description: Phaser 3 開發慣例
+globs: ["src/scenes/**/*.js", "src/prefabs/**/*.js"]
+---
+
+- 碰撞檢測用 physics.overlap 判傷害，用 physics.collider 判支撐（互相推動）
+- 敵人位置改動後一定呼叫 refreshBody，不然碰撞體還在舊位置
+- 移動速度大於平台厚度要設 setMaxVelocity，否則高速穿過
+- 狀態（分數、命數、金幣計數）存 registry，不存 this，這樣 scene.switch 不會遺失
+
+## 這個專案踩過的 Phaser 坑（會重演，先寫下來）
+
+- `physics.add.group()` 會在 `add()` 時把子物件 body 的預設值蓋回去
+  （velocity 歸零、maxVelocity 變回 10000、allowGravity 變回 true）。
+  prefab 自己建 body 時，改用普通的 `this.add.group()`
+- `refreshBody()` 只存在於 StaticBody。動態 body 呼叫會直接 TypeError，改用 `setSize()`
+- 傳送角色用 `body.reset(x, y)`，不要直接改 `sprite.x/y`
+- `setMaxVelocity()` 的 Y 上限一定要大於 `JUMP_VELOCITY`，
+  不然起跳也被削掉，調跳躍力會完全沒感覺

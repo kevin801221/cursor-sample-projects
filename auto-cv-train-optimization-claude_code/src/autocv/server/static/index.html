@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>autocv cockpit</title>
+<style>
+:root{--bg:#0b0f1a;--panel:#121829;--line:#1f2a44;--txt:#e7ecf6;--mut:#7d8aa6;--accent:#5b8cff;--ok:#3ddc97;--run:#ffb454;--err:#ff5d6c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,"Segoe UI",Roboto,"PingFang TC",sans-serif}
+header{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:15px;margin:0;letter-spacing:.5px}.sp{flex:1}
+select,button{background:#1b2238;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}
+button{cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.5;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:240px 1fr;gap:16px;padding:16px;max-width:1180px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin:0 0 12px}
+.st{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;margin-bottom:8px;background:#0f1424}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--mut);flex:none}
+.st.running .dot{background:var(--run);box-shadow:0 0 0 4px rgba(255,180,84,.2)}
+.st.done .dot{background:var(--ok)}.st.error .dot{background:var(--err)}
+.st small{color:var(--mut);margin-left:auto}
+canvas{width:100%;height:200px;background:#0f1424;border-radius:10px}
+#log{height:200px;overflow:auto;background:#0f1424;border-radius:10px;padding:10px;font:12px/1.45 "SF Mono",Menlo,monospace;color:#bcd}
+#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+#gallery img{width:100%;border-radius:8px;border:1px solid var(--line)}
+.modal{position:fixed;inset:0;background:rgba(4,7,15,.78);display:none;align-items:center;justify-content:center}
+.modal.on{display:flex}.modal .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:420px;text-align:center}
+.modal h3{margin:0 0 8px}.modal p{color:var(--mut)}
+.kpi{display:flex;gap:20px;margin-top:10px}.kpi b{font-size:22px;color:var(--ok)}
+.row{display:flex;gap:16px;flex-direction:column}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>⌁ autocv cockpit</h1>
+  <select id="cfg"></select>
+  <label style="color:var(--mut)"><input type="checkbox" id="opt"> optimize</label>
+  <div class="sp"></div>
+  <button class="primary" id="run">▶ Run pipeline</button>
+</header>
+<div class="grid">
+  <div class="card"><h2>Pipeline 接力</h2><div id="stages"></div></div>
+  <div class="row">
+    <div class="card"><h2>訓練曲線</h2><canvas id="chart" width="800" height="200"></canvas><div class="kpi" id="kpi"></div></div>
+    <div class="card"><h2>即時 log</h2><div id="log"></div></div>
+    <div class="card"><h2>成果圖</h2><div id="gallery"></div></div>
+  </div>
+</div>
+<div class="modal" id="modal"><div class="box">
+  <h3 id="mTitle">準備開始訓練</h3><p id="mBody"></p>
+  <button class="primary" id="go">我了解，開始</button>
+</div></div>
+<script>
+const STAGES=["data","split","train","optimize","infer"];
+const sEl=document.getElementById("stages"),logEl=document.getElementById("log"),
+gal=document.getElementById("gallery"),cv=document.getElementById("chart"),ctx=cv.getContext("2d"),
+cfgSel=document.getElementById("cfg"),runBtn=document.getElementById("run");
+let pts=[],st={};
+function el(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function clr(n){while(n.firstChild)n.removeChild(n.firstChild);}
+function drawStages(){clr(sEl);STAGES.forEach(n=>{const row=el("div","st "+(st[n]||""));
+ row.appendChild(el("span","dot"));row.appendChild(el("span",null,n));
+ row.appendChild(el("small",null,st[n]||""));sEl.appendChild(row);});}
+drawStages();
+function setStage(n,s){st[n]=s;drawStages();}
+function logLine(l){logEl.appendChild(el("div",null,l));logEl.scrollTop=logEl.scrollHeight;}
+function curve(){ctx.clearRect(0,0,cv.width,cv.height);if(pts.length<2)return;
+ const mx=Math.max(...pts.map(p=>p.epoch)),my=Math.max(0.01,...pts.map(p=>p.map50));
+ ctx.strokeStyle="#5b8cff";ctx.lineWidth=2;ctx.beginPath();
+ pts.forEach((p,i)=>{const x=20+(p.epoch/mx)*(cv.width-40),y=cv.height-20-(p.map50/my)*(cv.height-40);
+  i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();}
+function setKpi(v){const k=document.getElementById("kpi");clr(k);
+ const d=el("div",null,"mAP@0.5 ");d.appendChild(el("b",null,(v||0).toFixed(3)));k.appendChild(d);}
+fetch("/configs").then(r=>r.json()).then(d=>{clr(cfgSel);
+ (d.configs||[]).forEach(c=>cfgSel.appendChild(el("option",null,c)));});
+let ws;
+runBtn.onclick=()=>{st={};drawStages();clr(logEl);clr(gal);pts=[];curve();runBtn.disabled=true;
+ fetch("/run",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({config:cfgSel.value,optimize:document.getElementById("opt").checked})})
+ .then(r=>{if(r.status===409){alert("已有 pipeline 在跑");runBtn.disabled=false;return;}openWS();});};
+function openWS(){ws=new WebSocket(`ws://${location.host}/ws`);
+ ws.onmessage=e=>{const m=JSON.parse(e.data);
+ if(m.kind==="stage")setStage(m.stage,m.payload.status);
+ else if(m.kind==="log")logLine(m.payload.line);
+ else if(m.kind==="metric"){pts.push(m.payload);curve();setKpi(m.payload.map50);}
+ else if(m.kind==="await_confirm"){document.getElementById("mTitle").textContent="準備開始 "+m.stage;
+  document.getElementById("mBody").textContent="預估約 "+m.payload.estimate_min+" 分鐘。"+(m.payload.detail||"")+" 你的算力你決定。";
+  document.getElementById("modal").classList.add("on");}
+ else if(m.kind==="result"){clr(gal);(m.payload.images||[]).forEach(u=>{const i=el("img");i.src=u;gal.appendChild(i);});}
+ else if(m.kind==="done"){runBtn.disabled=false;if(!m.payload.ok)logLine("ERROR: "+(m.payload.error||""));}};}
+document.getElementById("go").onclick=()=>{document.getElementById("modal").classList.remove("on");
+ fetch("/confirm",{method:"POST"});};
+</script>
+</body>
+</html>

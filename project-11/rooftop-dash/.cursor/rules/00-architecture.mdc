@@ -1,0 +1,35 @@
+---
+alwaysApply: true
+---
+
+# Rooftop Dash 架構規則
+
+## 一檔一職責
+
+- `input.js` 只管鍵盤輸入，禁止包含邏輯
+- `constants.js` 只放可調數值（速度、重力、敵人 HP、金幣得分等）
+- 每個場景各自一檔 (`scenes/XXXScene.js`)，不要把多個場景混在一起
+- `prefabs/` 資料夾裡的類只放初始化和方法，不要依賴外部場景狀態
+
+## 常數置頂
+
+- 速度、重力、跳躍力、敵人 HP、碰撞體尺寸一律寫進 `constants.js`
+- 禁止在場景檔寫死數值（例：禁止寫 `setVelocityY(-400)`，改用 `setVelocityY(-PLAYER.JUMP_VELOCITY)`）
+- 調手感時只改 `constants.js`，不用翻場景檔
+
+## 禁止規則
+
+- 禁止建立第二個 Phaser Game 實例。全專案只有 main.js 裡那一個
+- 禁止在 Scene 實例上直接存分數、命數、收集計數。一律改用 `registry.set('key', value)` 與 `registry.get('key')`，這樣切換場景不會遺失
+
+## 一定要做
+
+- 改完碰撞體尺寸一定呼叫 `physics.body.refreshBody()`（靜態 body 專用；動態 body 用 `setSize()` 即可）
+- 敵人、玩家速度一定要設 `setMaxVelocity()`，防止高速穿過平台
+- 每個迭代完親自玩一遍，尤其是快速移動、連續碰撞、邊界情況
+
+## 這個專案的離線鐵則
+
+- 禁止下載任何圖片或音效檔。美術一律用 Phaser Graphics 畫完 `generateTexture()`，音效一律用 WebAudio 合成
+- 所有課堂 demo 都靠 URL 參數切換（`?demo=tunneling`、`?demo=level2`），
+  而且只能「覆寫 constants.js 的值」，不准為 demo 開第二條程式碼路徑

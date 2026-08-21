@@ -1,0 +1,8 @@
+---
+description: Supabase 使用規則
+globs: ["supabase/**/*.sql"]
+---
+- 絕對不可在 "use client" 檔案中使用 SUPABASE_SERVICE_ROLE_KEY
+- 任何新表都要同時撰寫 RLS 政策
+- 禁止 USING (true)，一律用 auth.uid() 或團隊成員關聯限定資料範圍
+- migration 檔名：{序號}_{內容}.sql，policy 名稱用「表名: 動作描述」

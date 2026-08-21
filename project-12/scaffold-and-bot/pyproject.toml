@@ -1,0 +1,15 @@
+[project]
+name = "scaffold-and-bot"
+version = "1.0.0"
+description = "Scaffold CLI and Telegram Guitar Chord Bot"
+requires-python = ">=3.11"
+dependencies = [
+    "pillow>=10.0.0",
+    "python-telegram-bot>=20.0",
+    "loguru>=0.7.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

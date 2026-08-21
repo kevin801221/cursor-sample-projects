@@ -1,0 +1,25 @@
+# 這份是給「單獨把 yt-graphrag-bot/ 複製到別的 repo」的人用的，
+# 所以跟外層那份白名單有部分重複，是刻意的。
+#
+# uv.lock 刻意「不」忽略：pyproject.toml 寫的是 >=，讓專案能跟上套件更新；
+# uv.lock 才是把實測過的版本組合釘住的地方。開課時全班拿到同一份 lock，
+# 才不會有人上到一半被上游更新炸掉。要升級再跑 uv lock --upgrade。
+.venv/
+__pycache__/
+*.pyc
+
+# 執行產物
+chroma_db/
+subs/
+source.json
+transcript.json
+eval_set.json
+eval_report.json
+chatbot_server.py
+
+# 跑流程時掉出來的暫存圖檔（yt-dlp 縮圖等）。
+# 只擋根目錄這層，docs/ 底下的 README 截圖要保留。
+/*.jpg
+/*.png
+
+.DS_Store

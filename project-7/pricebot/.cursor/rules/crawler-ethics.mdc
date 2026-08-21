@@ -1,0 +1,12 @@
+---
+description: Web Scraping Ethics and Compliance Rules
+globs: ["src/**/*.py"]
+alwaysApply: true
+---
+
+# Crawler Ethics & Compliance Rules
+
+1. **嚴格遵守 robots.txt 協定**：爬取前必須先檢驗目標路徑是否被 Disallow。若被禁止則一律終止爬取。
+2. **遵守禮貌間隔 (Rate Limiting)**：單一網域連線必須加上適當延遲（如 `time.sleep`），嚴禁發動併發洪水請求。
+3. **明示 User-Agent 身分**：HTTP Request Headers 必須指明機器人名稱與聯絡網址，禁止偽裝為一般訪客瀏覽器進行攻擊。
+4. **禁止抓取個人隱私資訊 (PII)**：只爬取公開商品規格與價格，不碰任何會員帳號或個資。

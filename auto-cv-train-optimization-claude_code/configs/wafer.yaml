@@ -1,0 +1,30 @@
+roboflow:
+  workspace: wm811k-paasr
+  project: wm811k
+  version: 3
+  format: yolov8
+  api_key_env: ROBOFLOW_API_KEY
+
+paths:
+  raw: data/raw
+  processed: data/processed
+  runs: runs
+
+dataset:
+  split: [0.7, 0.2, 0.1]
+  seed: 42
+
+train:
+  model: yolov8n.pt
+  epochs: 50
+  batch: 8
+  imgsz: 416
+  device: auto
+
+optimize:
+  iterations: 20
+  epochs: 15
+
+infer:
+  conf: 0.25
+  num_samples: 10

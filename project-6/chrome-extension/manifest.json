@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Highlight AI - 選字標註與智慧摘要擴充",
+  "version": "1.0.0",
+  "description": "選取網頁文字即時提供 AI 摘要、翻譯與安全標註筆記（金鑰隔離架構）",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://api.openai.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Highlight AI 標註清單"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

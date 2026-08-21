@@ -1,0 +1,78 @@
+/* Highlight AI Content Script Styles */
+.highlight-ai-toolbar {
+  position: absolute;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 6px 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: hlFadeIn 0.15s ease-out;
+}
+
+.highlight-ai-btn {
+  background: #1f2937;
+  color: #f3f4f6;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.highlight-ai-btn:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.highlight-ai-bubble {
+  position: absolute;
+  z-index: 2147483647;
+  width: 320px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #111827;
+  color: #f9fafb;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.6);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.highlight-ai-bubble-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+.highlight-ai-bubble-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+@keyframes hlFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

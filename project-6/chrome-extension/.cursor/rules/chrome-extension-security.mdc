@@ -1,0 +1,15 @@
+---
+description: Chrome Extension MV3 Security Rules
+globs: ["**/*.js", "**/*.json"]
+alwaysApply: true
+---
+
+# Chrome Extension MV3 Security Rules
+
+1. **嚴格禁止金鑰外洩至 Content Script**：
+   - 絕對禁止在 `content.js` 中儲存、引用或傳遞 API Key、Token 或使用者密碼。
+   - 所有 LLM 外部網路請求必須交由 `background.js` (Service Worker) 代理發送。
+2. **最小權限原則 (Least Privilege)**：
+   - `manifest.json` 的 permissions 只申請必要的 `storage`, `activeTab`，不得隨意宣告危險權限。
+3. **訊息傳遞型別安全**：
+   - `content.js` 與 `background.js` 之間一律透過結構化 `type` 訊息通訊（`ANALYZE_TEXT`, `SAVE_HIGHLIGHT`, `GET_HIGHLIGHTS`）。

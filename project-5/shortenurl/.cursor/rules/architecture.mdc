@@ -1,0 +1,12 @@
+---
+description: FastAPI layered architecture rules
+globs: ["app/**/*.py"]
+alwaysApply: true
+---
+
+# Layered Architecture Rules
+
+1. **Routers 層職責**：只能負責處理 HTTP 請求、呼叫 Service 層、回傳 Response。嚴格禁止在 router 中直接撰寫 SQL 語句或操作 ORM 模型。
+2. **Services 層職責**：負責核心業務邏輯（短代碼生成、防碰撞、分析任務調度），不直接操作底層 AsyncSession。
+3. **Repositories 層職責**：唯一能存取資料庫與執行 SQL/ORM 查詢的層級。
+4. **Pydantic 安檢門**：所有外部輸入必須經由 Pydantic Schemas 嚴格驗證（URL 協定檢查、長度與正則格式限制）。

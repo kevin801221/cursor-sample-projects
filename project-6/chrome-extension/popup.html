@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 340px;
+      padding: 16px;
+      margin: 0;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+      margin-bottom: 12px;
+    }
+    .title { font-size: 15px; font-weight: 700; color: #38bdf8; }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .card-text { color: #94a3b8; font-size: 12px; border-left: 2px solid #38bdf8; padding-left: 8px; margin-bottom: 6px; }
+    .card-summary { color: #f1f5f9; white-space: pre-wrap; font-size: 12px; }
+    .btn {
+      width: 100%;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">⚡ Highlight AI 筆記庫</div>
+    <span style="font-size: 11px; color: #94a3b8;" id="countLabel">0 則標註</span>
+  </div>
+
+  <div id="listContainer">
+    <div style="text-align: center; color: #64748b; font-size: 13px; padding: 20px 0;">尚無儲存的標註筆記</div>
+  </div>
+
+  <button class="btn" id="optionsBtn">⚙️ 開啟設定 (API Key)</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

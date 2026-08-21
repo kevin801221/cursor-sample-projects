@@ -1,0 +1,36 @@
+[project]
+name = "auto-cv-train-optimization-claude_code"
+version = "0.1.0"
+description = "改一個 YAML，一行指令把任何 Roboflow 資料集自動跑完 下載→驗證切分→訓練→超參優化→推論視覺化。"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "羅子嘉 (Kevin Luo)" }]
+dependencies = [
+    "typer>=0.15.0",
+    "python-dotenv>=1.0.0",
+    "pyyaml>=6.0",
+    "roboflow>=1.3.8",
+    "ultralytics>=8.4.48",
+    "matplotlib>=3.8",
+    "Pillow>=10.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6", "httpx>=0.27"]
+
+[project.scripts]
+autocv = "autocv.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autocv"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
