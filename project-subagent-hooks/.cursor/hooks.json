@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeReadFile": [
+      { "command": ".cursor/hooks/guard-secrets.sh", "failClosed": true }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/guard-shell.sh",
+        "matcher": "rm\\s+-rf|drop\\s+(table|database)|truncate|migrate\\s+reset|--force",
+        "failClosed": true
+      }
+    ],
+    "afterFileEdit": [
+      { "command": ".cursor/hooks/format-edit.sh", "timeout": 15 }
+    ],
+    "subagentStop": [
+      { "command": ".cursor/hooks/subagent-report.sh", "loop_limit": 2 }
+    ],
+    "stop": [
+      { "command": ".cursor/hooks/session-wrap.sh", "loop_limit": 1 }
+    ]
+  }
+}

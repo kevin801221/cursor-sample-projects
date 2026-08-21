@@ -27,6 +27,7 @@
 | 專案 | 常見可能卡住的地方 | 畫面上會出現的徵狀 | 30 秒內快速救援招式 |
 |---|---|---|---|
 | **Project 1**<br>環境準備 | Docker Desktop 沒開或當掉 | 終端機報錯 `docker: daemon not running` | 1. 打開 Docker Desktop 等鯨魚圖示停止轉動<br>2. 若公司電腦完全不能裝 Docker，直接改用 Supabase / Neo4j 免費雲端版（見 `docker-services.md`） |
+| **Subagent + Hooks**<br>安全護欄與分工 | 1. Hook 未執行或報錯<br>2. `jq` 未安裝<br>3. 迴圈觸發超時 | 1. 權限沒給或輸出非 JSON<br>2. 提示 `jq: command not found`<br>3. Agent 陷入無限重試 | 1. 執行 `chmod +x .cursor/hooks/*.sh`，確保腳本只輸出合法 JSON<br>2. 執行 `brew install jq`<br>3. 在 `hooks.json` 顯式設定 `loop_limit: 2` 與 `failClosed: true` |
 | **Project 2**<br>TaskBoard | 1. 誤刪任務卡片或想重置<br>2. 登入不知道帳密<br>3. 埠 3000 被占用 | 1. 看板變空<br>2. 找不到測試帳號<br>3. Next.js 改開在 3001 | 1. 執行 `./demo.sh 3` 一秒重置所有測資<br>2. 登入填 `alice@taskboard.test` / `taskboard123`（**不用填團隊 ID**）<br>3. 依終端機印出的實際網址打開（例如 `localhost:3001`） |
 | **Project 3**<br>React 元件庫 | 1. `check.mjs` 檢查報錯<br>2. 元件庫 Showcase 沒畫面 | 1. 提示發現寫死色碼（如 `#ffffff`）<br>2. 5173 埠被佔用 | 1. 將色碼替換為 `tokens.ts` 裡的 Token 變數<br>2. Vite 會自動切到 5174 埠，點擊終端機連結即可 |
 | **Project 4**<br>習慣追蹤 App | 1. 連續天數（Streak）沒跳動<br>2. 瀏覽器 LocalStorage 髒掉 | 1. 打卡後天數未累加<br>2. 舊資料殘留 | 1. Streak 計算需為「今天」或「連續昨日」才累加<br>2. 在瀏覽器按 F12 → Application → Clear Storage 清除快取 |

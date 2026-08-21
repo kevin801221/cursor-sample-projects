@@ -26,6 +26,7 @@ uv run tools/sqlite_viewer.py Anchor_knowledge.ai/data/app.db
 | 資料夾 | 章 | 專案 | 一句話 |
 |---|---|---|---|
 | [project-1-environment-setup](./project-1-environment-setup/) | — | 第 0 課：環境準備日 | 裝機五件套 + 帳號總表 + 健康檢查全綠——把必然會發生的失敗前移 |
+| [project-subagent-hooks](./project-subagent-hooks/) | — | Subagent + Hooks 實戰 | Subagent 決定誰來做，Hook 決定什麼一定會發生、什麼絕對不准發生；雙軌協同為 API 加上防護網 |
 | [project-2-taskboard-saas](./project-2-taskboard-saas/) | 22–23 | TaskBoard（Next.js + Supabase + 金流） | 多租戶隔離做在資料庫層 RLS；webhook 沒驗簽等於任何人都能偽造付費事件（課堂版用 [Mock 金流](./project-2-taskboard-saas/walkthrough-2-mock-payment.md)，進階版用 [Stripe](./project-2-taskboard-saas/walkthrough-2-stripe.md)） |
 | [project-3-react-component-library](./project-3-react-component-library/) | 24 | Figma / 截圖轉 React 元件庫 | 設計轉程式碼最容易生出一次性樣式，design tokens + rules 先行 |
 | [project-4-habit-tracker-app](./project-4-habit-tracker-app/) | 25 | React Native + Expo 習慣追蹤 App | 行動端 UI 一改就跑版，用規則和 Checkpoint 雙重把關 |
@@ -52,19 +53,20 @@ project-13～17 以開源 repo 為教材（project-13、14 為 Kevin 的兩個 r
 | 順位 | 專案 | 為什麼排這裡 |
 |---|---|---|
 | 0 | [project-1-environment-setup](./project-1-environment-setup/) | 第 0 課：環境健康檢查全綠再開課，把必然的失敗前移 |
-| 1 | [project-3-react-component-library](./project-3-react-component-library/) | 純前端、最快有成就感：截圖變元件，順便學 rules |
-| 2 | [project-8-operations-dashboard](./project-8-operations-dashboard/) | Python 資料入門：清資料、算指標、互動儀表板 |
-| 3 | [project-7-price-monitor-scraper](./project-7-price-monitor-scraper/) | Python 進階 + 合法合規思維（動手前先查五件事） |
-| 4 | [project-5-fastapi-backend](./project-5-fastapi-backend/) | 後端分層、Pydantic 驗證、第一次雲端部署 |
-| 5 | [project-6-chrome-extension](./project-6-chrome-extension/) | 前後端整合 + 金鑰安全（放錯地方等於送人） |
-| 6 | [project-12-cli-telegram-bot](./project-12-cli-telegram-bot/) | 打包與發佈：CLI 工具 + Telegram Bot |
-| 7 | [project-11-rooftop-dash-game](./project-11-rooftop-dash-game/) | 中場趣味：從一頁 GDD 疊代出能玩的遊戲 |
-| 8 | [project-4-habit-tracker-app](./project-4-habit-tracker-app/) | 行動端（模擬器環境費時，放大家熟練之後） |
-| 9 | [project-9-rag-chatbot](./project-9-rag-chatbot/) | AI 縱深起點：RAG——查完再答、答案附出處 |
-| 10 | [project-10-mcp-server](./project-10-mcp-server/) | 自建 MCP Server：讓 agent 有自己的工具 |
-| 11 | [project-14-graphrag-chatbot](./project-14-graphrag-chatbot/) | RAG 進階：GraphRAG + Neo4j 知識圖譜 |
-| 12 | [project-13-autocv-yolo-agents](./project-13-autocv-yolo-agents/) | multi-agent：五個 agent 接力訓練 YOLO |
-| 13 | [project-15-rag-architect-mcp](./project-15-rag-architect-mcp/) | MCP × RAG 集大成：確定性架構路由（RAG router） |
-| 14 | [project-16-lazy-superstack-plugin](./project-16-lazy-superstack-plugin/) | agent 能力生態系：rules／MCP／commands 的策展 |
-| 15 | [project-17-anchor-pdf-ai-reader](./project-17-anchor-pdf-ai-reader/) | 完整產品收官：local-first 全端 side project |
-| 16 | [project-2-taskboard-saas](./project-2-taskboard-saas/) | 壓軸選講：多租戶 RLS + 金流——最難講，學生也要有前面全部的底子 |
+| 1 | [project-subagent-hooks](./project-subagent-hooks/) | **核心心智模型先行**：學會 Subagent 分工與 Hooks 確定性護欄，為後續所有開發立下安全紀律 |
+| 2 | [project-3-react-component-library](./project-3-react-component-library/) | 純前端、最快有成就感：截圖變元件，順便學 rules |
+| 3 | [project-8-operations-dashboard](./project-8-operations-dashboard/) | Python 資料入門：清資料、算指標、互動儀表板 |
+| 4 | [project-7-price-monitor-scraper](./project-7-price-monitor-scraper/) | Python 進階 + 合法合規思維（動手前先查五件事） |
+| 5 | [project-5-fastapi-backend](./project-5-fastapi-backend/) | 後端分層、Pydantic 驗證、第一次雲端部署 |
+| 6 | [project-6-chrome-extension](./project-6-chrome-extension/) | 前後端整合 + 金鑰安全（放錯地方等於送人） |
+| 7 | [project-12-cli-telegram-bot](./project-12-cli-telegram-bot/) | 打包與發佈：CLI 工具 + Telegram Bot |
+| 8 | [project-11-rooftop-dash-game](./project-11-rooftop-dash-game/) | 中場趣味：從一頁 GDD 疊代出能玩的遊戲 |
+| 9 | [project-4-habit-tracker-app](./project-4-habit-tracker-app/) | 行動端（模擬器環境費時，放大家熟練之後） |
+| 10 | [project-9-rag-chatbot](./project-9-rag-chatbot/) | AI 縱深起點：RAG——查完再答、答案附出處 |
+| 11 | [project-10-mcp-server](./project-10-mcp-server/) | 自建 MCP Server：讓 agent 有自己的工具 |
+| 12 | [project-14-graphrag-chatbot](./project-14-graphrag-chatbot/) | RAG 進階：GraphRAG + Neo4j 知識圖譜 |
+| 13 | [project-13-autocv-yolo-agents](./project-13-autocv-yolo-agents/) | multi-agent：五個 agent 接力訓練 YOLO |
+| 14 | [project-15-rag-architect-mcp](./project-15-rag-architect-mcp/) | MCP × RAG 集大成：確定性架構路由（RAG router） |
+| 15 | [project-16-lazy-superstack-plugin](./project-16-lazy-superstack-plugin/) | agent 能力生態系：rules／MCP／commands 的策展 |
+| 16 | [project-17-anchor-pdf-ai-reader](./project-17-anchor-pdf-ai-reader/) | 完整產品收官：local-first 全端 side project |
+| 17 | [project-2-taskboard-saas](./project-2-taskboard-saas/) | 壓軸選講：多租戶 RLS + 金流——最難講，學生也要有前面全部的底子 |

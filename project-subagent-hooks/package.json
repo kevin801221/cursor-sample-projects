@@ -1,0 +1,19 @@
+{
+  "name": "account-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Node/TypeScript API with Subagents and Hooks demo",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": ["subagents", "hooks", "cursor"],
+  "author": "Kevin",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  }
+}

@@ -9,7 +9,7 @@ FAIL=0
 ok()   { echo "  ✅ $1"; }
 bad()  { echo "  ❌ $1"; FAIL=1; }
 
-echo "【1/4】17 個專案資料夾與必備檔案"
+echo "【1/4】18 個專案資料夾與必備檔案"
 count=0
 for d in project-*/; do
   count=$((count+1))
@@ -17,7 +17,7 @@ for d in project-*/; do
   ls "${d}"walkthrough*.md >/dev/null 2>&1 || bad "${d} 缺 walkthrough"
   [ -f "${d}demo.sh" ]              || bad "${d} 缺 demo.sh"
 done
-[ "$count" -eq 17 ] && ok "17 個專案資料夾都在" || bad "專案資料夾數量是 $count，不是 17"
+[ "$count" -eq 18 ] && ok "18 個專案資料夾都在" || bad "專案資料夾數量是 $count，不是 18"
 
 echo "【2/4】5 個教材 repo 在同層"
 for r in auto-cv-train-optimization-claude_code agent-automatic-graphrag-chat-skill \

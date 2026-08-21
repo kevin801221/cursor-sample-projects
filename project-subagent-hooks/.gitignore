@@ -1,0 +1,7 @@
+.cursor/reports/
+.cursor/state/
+.cursor/hooks/log/
+node_modules/
+dist/
+.env
+.env.local
