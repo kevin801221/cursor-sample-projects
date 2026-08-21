@@ -202,14 +202,15 @@ Agent 看到這個規則，下次你要求「直接 print 調試」，它就會�
 
 #### 1. robots.txt
 
-檢查該網站的 `/robots.txt`，看「爬蟲能不能碰」。爬取前自動 GET `https://books.toscrape.com/robots.txt`。
+檢查該網站的 `/robots.txt`，看「爬蟲能不能碰」。讀回來只有三種情況：
 
-books.toscrape.com 的範例：
-```
-User-agent: *
-Disallow:
-```
-完全允許，直接爬。但若看到 `Disallow: /`, `/product/` 等就要停止。
+| 你看到的 | 意思 | 動作 |
+|---|---|---|
+| 檔案存在，`Disallow:` 後面是空的 | 明示「全部開放」 | 可以爬 |
+| 檔案存在，有 `Disallow: /admin/` 這類路徑 | 這些路徑禁入，其他開放 | 繞開禁區再爬 |
+| **404（根本沒有這個檔案）** | 沒有宣告任何限制；依 robots 排除協定慣例**視同不禁止**（Python 的 `urllib.robotparser` 遇 404 也是全部放行） | 可以爬，但其他四件事照查 |
+
+練習沙盒 books.toscrape.com 就是第三種——curl 它的 robots.txt 會拿到 404（§3.3 會親手驗證）。本專案課堂版的爬蟲則內建一份 mock robots.txt（`src/mock_server.py` 的 `ROBOTS_TXT`），Allow 與 Disallow 都示範到，完全離線。
 
 > 🔍 **名詞卡：robots.txt**
 > 白話：網站貼在門口的「營業規則」。就像便利商店門口貼「禁止拍照」或「開放拍照」，爬蟲要先讀這份告示，決定「能不能進門」。不讀就亂爬，等同闖入禁地。
@@ -364,24 +365,36 @@ uv add -d pytest pytest-mock  # 開發工具
 curl https://books.toscrape.com/robots.txt
 ```
 
-預期輸出：
-```
-User-agent: *
-Disallow:
-```
-
-看到了嗎？`Disallow:` 後面是空的，代表『沒有禁止』。這就叫『有禮貌』。現在換你的爬蟲程式也做同一件事——在抓價格之前，先讀一遍這份告示，確認『系統說可以』以後才動手。
-
-對 Agent 說：
-> 執行 `check_robots_txt("books.toscrape.com")`，印出檢查結果
-
-✅ **預期看到**：
-```
-logger.info: Checking robots.txt for books.toscrape.com...
-logger.info: robots.txt allows scraping
+預期輸出（對，就是 404）：
+```html
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.21.6</center>
+</body>
+</html>
 ```
 
-視覺上「動手前先問」的禮儀被具體執行出來——這是最難忘的學習。
+看到了嗎？這個網站**根本沒放 robots.txt**。404 不是你打錯字——依 robots 排除協定的慣例，「沒有告示」代表「沒有宣告任何限制」，視同不禁止（books.toscrape.com 本來就是官方給人練爬蟲的沙盒）。想看一份「真的有規則」的告示長什麼樣，換一個站：
+
+```bash
+curl -s https://zh.wikipedia.org/robots.txt | head -20
+```
+
+會看到一長串 `User-agent` 與 `Disallow:` 條目——維基百科明確列出哪些爬蟲、哪些路徑不歡迎。兩相對照，三種情況（開放／有禁區／沒告示）你就都親眼見過了。
+
+現在換你的爬蟲程式也做同一件事——抓價格之前先讀告示，確認『系統說可以』才動手。本專案用的是內建 mock 告示，對 Agent 說：
+
+> 用 `src/compliance.py` 的 `RobotsChecker` 載入 `src/mock_server.py` 的 `ROBOTS_TXT`，分別檢查 `https://mock-shop.internal/products/prod-001` 和 `https://mock-shop.internal/admin/secret` 能不能爬，印出結果
+
+✅ **預期看到**（實跑輸出）：
+```
+INFO     ✅ [合規通過] robots.txt 允許爬取：https://mock-shop.internal/products/prod-001
+WARNING  🚫 [合規阻擋] 依據 robots.txt 規範，拒絕爬取：https://mock-shop.internal/admin/secret
+```
+
+一個放行、一個擋下——mock 的 `ROBOTS_TXT` 故意同時寫了 `Allow: /products/` 和 `Disallow: /admin/`，「動手前先問」的禮儀當場被具體執行出來——這是最難忘的學習。
 
 ---
 
