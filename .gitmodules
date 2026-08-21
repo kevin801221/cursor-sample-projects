@@ -1,0 +1,9 @@
+[submodule "rag-architect-mcp"]
+	path = rag-architect-mcp
+	url = https://github.com/kevin801221/rag-architect-mcp.git
+[submodule "lazy-cloud-devops"]
+	path = lazy-cloud-devops
+	url = https://github.com/kevin801221/lazy-cloud-devops.git
+[submodule "Anchor_knowledge.ai"]
+	path = Anchor_knowledge.ai
+	url = https://github.com/kevin801221/Anchor_knowledge.ai.git
