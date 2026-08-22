@@ -1,0 +1,46 @@
+---
+description: Neo4j 知識圖譜 Schema 定義、Cypher 查詢規範與連線指引
+globs: ["*neo4j*", "*graph*", "scripts/03_*", "chatbot_server.py", "ingest_pipeline.py"]
+alwaysApply: false
+---
+
+# Neo4j Graph Database Rules & Schema
+
+## 📊 圖譜資料模型 (Schema)
+
+本專案採用無外掛 (純原生 Cypher) 即可運行的簡潔 Schema：
+
+1. **節點標籤 (Node Labels)**：
+   - `(:Video {id, title, url, source_type})`：代表單一影片或文件來源。
+   - `(:Chunk {id, text, start, video_id, url_at_time})`：代表語意切塊，`id` 格式為 `{video_id}_{chunk_index}`。
+   - `(:Entity {name})`：代表從文字中抽取的知識概念或實體（如 "Transformer"、"注意力機制"）。
+
+2. **關係類型 (Relationships)**：
+   - `(Chunk)-[:PART_OF]->(Video)`
+   - `(Entity)-[:MENTIONED_IN]->(Chunk)`
+   - `(Entity)-[:REL {type: "包含"|"用於"|"解決"}]->(Entity)`：實體間的語意關係，`type` 存為屬性以避免需要動態 label 外掛。
+
+## 🔍 常見 Cypher 查詢範例
+
+- **查詢圖譜總節點與關係**：
+  ```cypher
+  MATCH (a:Entity)-[r:REL]->(b:Entity)
+  RETURN a.name AS a, r.type AS rel, b.name AS b LIMIT 200
+  ```
+- **查詢指定實體的一階鄰居**：
+  ```cypher
+  MATCH (e:Entity {name: $name})-[r:REL]-(nb:Entity)
+  OPTIONAL MATCH (e)-[:MENTIONED_IN]->(ck:Chunk)
+  RETURN nb.name AS nb, r.type AS rel, collect(DISTINCT ck.url_at_time)[..3] AS sources
+  ```
+- **從命中的 Chunk 反查實體與擴展圖譜**：
+  ```cypher
+  MATCH (e:Entity)-[:MENTIONED_IN]->(ck:Chunk)
+  WHERE ck.id IN $ids OR (ck.video_id IN $vids AND ck.start IN $starts)
+  MATCH (e)-[r:REL]-(nb:Entity)
+  RETURN DISTINCT e.name AS a, r.type AS rel, nb.name AS b LIMIT 30
+  ```
+
+## ⚠️ 寫入原則
+- 堅持使用 `MERGE` 而不是 `CREATE`，以確保同一實體在不同 Chunk 出現時能自動合併連通。
+- 同一來源重新入庫時，透過 `MATCH (c:Chunk {video_id: $vid}) DETACH DELETE c` 保持冪等性。

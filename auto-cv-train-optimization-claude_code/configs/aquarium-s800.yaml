@@ -1,0 +1,32 @@
+# Aquarium R2：只動一個變因——解析度 640 → 800（batch 16→8 純為記憶體安全）
+roboflow:
+  workspace: brad-dwyer
+  project: aquarium-combined
+  version: 6
+  format: yolov8
+  api_key_env: ROBOFLOW_API_KEY
+
+paths:
+  raw: data/raw/aquarium
+  processed: data/processed/aquarium
+  runs: runs
+
+dataset:
+  split: [0.7, 0.2, 0.1]
+  seed: 42
+
+train:
+  model: yolov8s.pt
+  name: aq-s-800
+  epochs: 60
+  batch: 8
+  imgsz: 800
+  device: auto
+
+optimize:
+  iterations: 8
+  epochs: 10
+
+infer:
+  conf: 0.25
+  num_samples: 10

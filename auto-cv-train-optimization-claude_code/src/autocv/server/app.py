@@ -57,35 +57,87 @@ def create_app(
         r.confirm()
         return JSONResponse({"status": "confirmed"})
 
+    @app.get("/status")
+    def status() -> JSONResponse:
+        r = state["runner"]
+        if r is None:
+            return JSONResponse({"status": "idle", "events": []})
+        return JSONResponse({
+            "status": r.status,
+            "current_stage": r.current_stage,
+            "events": [e.to_dict() for e in r.history[-150:]],
+        })
+
     @app.websocket("/ws")
     async def ws(sock: WebSocket) -> None:
         await sock.accept()
+        r = state["runner"]
+        listener_q = None
+        if r is not None:
+            # 重播歷史事件給新連線的用戶端
+            for ev in r.history:
+                try:
+                    await sock.send_json(ev.to_dict())
+                except Exception:
+                    break
+            listener_q = r.add_listener()
+
         try:
             while True:
-                r = state["runner"]
-                if r is None:
-                    await asyncio.sleep(0.1)
+                curr_runner = state["runner"]
+                if curr_runner is None:
+                    await asyncio.sleep(0.2)
                     continue
+
+                if listener_q is None or curr_runner != r:
+                    r = curr_runner
+                    listener_q = r.add_listener()
+
                 try:
-                    ev = r.events.get_nowait()
+                    ev = listener_q.get_nowait()
+                    await sock.send_json(ev.to_dict())
+                    if ev.kind == "done":
+                        await asyncio.sleep(0.5)
                 except Exception:
                     await asyncio.sleep(0.05)
-                    continue
-                await sock.send_json(ev.to_dict())
-                if ev.kind == "done":
-                    break
         except WebSocketDisconnect:
-            return
+            pass
+        finally:
+            if r is not None and listener_q is not None:
+                r.remove_listener(listener_q)
 
     if STATIC.is_dir():
         app.mount("/static", StaticFiles(directory=str(STATIC)), name="static")
 
     @app.get("/artifacts/{name}")
     def artifact(name: str):
+        # 優先找 runs/infer，若無則找 docs/results
         p = Path.cwd() / "runs" / "infer" / name
+        if not p.is_file():
+            p = Path.cwd() / "docs" / "results" / name
+        if not p.is_file():
+            # 也支援 runs/aq-n-640/ 下的圖表
+            for run_p in Path.cwd().glob(f"runs/*/{name}"):
+                if run_p.is_file():
+                    p = run_p
+                    break
         if not p.is_file():
             return HTMLResponse("not found", status_code=404)
         return FileResponse(str(p))
+
+    @app.get("/showcase")
+    def showcase() -> JSONResponse:
+        results_dir = Path.cwd() / "docs" / "results"
+        imgs = sorted(p.name for p in results_dir.glob("pred_*.png"))
+        return JSONResponse({
+            "dataset": "Wafer (WM-811K)",
+            "model": "YOLOv8n (MPS/CUDA)",
+            "map50": 0.9913,
+            "map50_95": 0.7633,
+            "precision": 0.9331,
+            "recall": 0.9968,
+            "images": [f"/artifacts/{name}" for name in imgs]
+        })
 
     @app.get("/", response_class=HTMLResponse)
     def index() -> HTMLResponse:

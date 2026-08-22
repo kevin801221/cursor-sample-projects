@@ -10,12 +10,9 @@
 #   ./install.sh --global        # 裝到使用者層（Claude Code / Codex；Cursor 規則只有專案層）
 set -euo pipefail
 
-SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# skill 名取自 SKILL.md 的 frontmatter，不是資料夾名——clone 下來的資料夾
-# 常跟 repo 同名（agent-automatic-graphrag-chat-skill），跟 frontmatter 對不上
-# 會讓 Claude Code 找不到這個 skill。
-NAME="$(sed -n 's/^name:[[:space:]]*//p' "$SKILL_DIR/SKILL.md" | head -1)"
-NAME="${NAME:-yt-graphrag-bot}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+NAME="yt-graphrag-bot"
+SKILL_DIR="$ROOT_DIR/.cursor/skills/$NAME"
 DESC="從 YouTube / PDF / DOCX / 網頁 URL 建出完整 GraphRAG 問答機器人的教學工作流：來源擷取 → 向量庫 → 知識圖譜 → 強 RAG → 方法驗證 → FastAPI 後端 → React 力導向圖前端。"
 
 GLOBAL=0
@@ -35,8 +32,8 @@ body() {
 
 不可省略的硬規則：
 - 照 Phase 順序 0 → 1 → 2 → 3 → 4+5 → 4.5 → 6，不跳步。
-- 第一個動作永遠是 \`uv run python scripts/check_setup.py\`，沒全綠不准往下。
-- 所有 Python 指令一律 \`uv run\` 開頭，工作目錄設在 \`$SKILL_DIR\`。
+- 第一個動作永遠是 \`uv run --env-file .env python .cursor/scripts/check_setup.py\`，沒全綠不准往下。
+- 所有 Python 指令一律 \`uv run\` 開頭，工作目錄設在 \`$ROOT_DIR\`。
 - 每個 Phase 的「✅ 成功判準」沒達成前，不要進下一個 Phase。
 - 深度內容按需讀 \`$SKILL_DIR/references/\` 下的檔案。
 EOF
@@ -85,29 +82,32 @@ else
 fi
 
 # ---------- Cursor ----------
-# Cursor 的規則是專案層的，--global 也裝到 $TARGET。
-mkdir -p "$TARGET/.cursor/rules" "$TARGET/.cursor/commands"
+# Cursor 的規則與技能包裝到 $TARGET/.cursor
+mkdir -p "$TARGET/.cursor/rules" "$TARGET/.cursor/commands" "$TARGET/.cursor/skills/$NAME"
+cp -r "$SKILL_DIR/SKILL.md" "$SKILL_DIR/scripts" "$SKILL_DIR/references" "$TARGET/.cursor/skills/$NAME/"
+cp -r "$SKILL_DIR/SKILL.md" "$SKILL_DIR/scripts" "$SKILL_DIR/references" "$TARGET/.cursor/" 2>/dev/null || true
+
 {
   echo "---"
   echo "description: $DESC"
-  echo "alwaysApply: false"
+  echo "alwaysApply: true"
   echo "---"
   echo
   echo "# $NAME"
   echo
   body
   echo
-  echo "@$SKILL_DIR/SKILL.md"
+  echo "@$TARGET/.cursor/skills/$NAME/SKILL.md"
 } > "$TARGET/.cursor/rules/$NAME.mdc"
 { echo "# $NAME"; echo; body; } > "$TARGET/.cursor/commands/$NAME.md"
 echo "[✓] Cursor"
+say "$TARGET/.cursor/skills/$NAME/（內含 SKILL.md、scripts/、references/）"
 say "$TARGET/.cursor/rules/$NAME.mdc（描述命中時自動載入）"
 say "$TARGET/.cursor/commands/$NAME.md（用法：/${NAME}）"
 [ "$GLOBAL" = 1 ] && say "註：Cursor 規則只有專案層，已裝到 $TARGET"
 
 echo
 echo "下一步："
-echo "  cd $SKILL_DIR && uv sync"
-echo "  export GOOGLE_API_KEY=... && export NEO4J_PASSWORD=..."
-echo "  uv run python scripts/check_setup.py"
-echo "  完整逐步教學：$SKILL_DIR/WALKTHROUGH.md"
+echo "  cd $ROOT_DIR && uv sync"
+echo "  uv run --env-file .env python .cursor/scripts/check_setup.py"
+echo "  完整逐步教學：$ROOT_DIR/WALKTHROUGH.md"

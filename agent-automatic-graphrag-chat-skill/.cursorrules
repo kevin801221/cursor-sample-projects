@@ -1,0 +1,9 @@
+# Cursor Rules for GraphRAG Teaching Assistant (yt-graphrag-bot)
+
+- **Python 管理**：強制使用 `uv run` 執行所有 Python 指令（`uv run python ...` 或 `uv run uvicorn ...`）。
+- **知識圖譜**：使用 Neo4j 原生 Cypher，節點包含 `(:Video)`、`(:Chunk)`、`(:Entity)`，關係包含 `[:PART_OF]`、`[:MENTIONED_IN]`、`[:REL {type: "..."}]`。
+- **向量資料庫**：使用 ChromaDB (`./chroma_db`)，集合為 `yt_rag`。
+- **多來源支援**：支援 YouTube 影片、PDF 文件、DOCX 文件、網頁 URL，均透過 `ingest_pipeline.py` 端到端正規化處理。
+- **後端服務**：FastAPI 運行於 Port 8000 (`chatbot_server.py`)。
+- **前端介面**：React + ForceGraph2D + 時間軸 運行於 Port 5180 (`frontend/`)。
+- **詳細教學**：參閱 `WALKTHROUGH.md` 與 `SKILL.md`。

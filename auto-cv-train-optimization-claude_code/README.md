@@ -44,34 +44,35 @@ uv run autocv all -c configs/wafer.yaml --yes
 
 ---
 
-## 兩種開法 / Two ways to drive
+## 🎮 三種操作介面 / Three ways to drive
 
-**① 一行 CLI** — 給喜歡掌控感的人
+**① 跟 Cursor / Claude Code 對話（5 大 Subagents 自動接力）**
+- **Cursor 專屬 Subagents**：位於 `.cursor/agents/`（`data-hunter`, `bbox-labeler`, `training-runner`, `hp-optimizer`, `inference-runner`），每個 Subagent 各自封裝 `.cursor/skills/` 專業指南。
+- 只要說一句：「**幫我下載並訓練這個資料集**」，5 個 Subagent 自動接力完成任務。
+- 👉 **完整教學手冊：請參閱 [`WALKTHROUGH.md`](WALKTHROUGH.md)**。
+
+**② 一行 CLI 指令** — 給喜歡直接掌控的工程師
 
 | 指令 | 它做什麼 |
 |---|---|
-| `autocv data` | 從 Roboflow 抓資料 |
-| `autocv split` | 驗證標註 + 切 70/20/10 |
-| `autocv train` | 訓練 YOLOv8（**燒卡前先問你**） |
-| `autocv optimize` | 超參搜尋，自己找最佳組合 |
-| `autocv infer` | 推論 + 畫框 + 出報告 |
-| `autocv all [--optimize]` | 一條龍 |
+| `autocv data` | `data-hunter` 從 Roboflow 抓資料 |
+| `autocv split` | `bbox-labeler` 驗證標註 + 切分 70/20/10 |
+| `autocv train` | `training-runner` 訓練 YOLOv8（**算力守門閘門先問你**） |
+| `autocv optimize` | `hp-optimizer` 超參搜尋，自己找最佳組合 |
+| `autocv infer` | `inference-runner` 測試集推論 + 畫框 |
+| `autocv report` | 產出優化階梯全維度成績單（mAP / PR 曲線 / 混淆矩陣） |
+| `autocv all [--optimize]` | 一條龍全自動執行 |
 
-**② 跟 Claude Code 講話** — 給想動嘴的人
-
-打開 repo，說一句「**幫我下載並訓練這個資料集**」。
-`data-hunter → bbox-labeler → training-runner → hp-optimizer → inference-runner` 五個 agent 自動接力，每一棒交接你都看得到。
-
-**③ 視覺駕駛艙 / Visual cockpit** — 給想用看的人
+**③ 視覺駕駛艙 (Visual Cockpit)** — 給想要即時監控與非同步串流成果的人
 
 ```bash
-uv run autocv ui          # 開瀏覽器，零指令
+uv run autocv ui --port 8787         # 開啟瀏覽器駕駛艙
 ```
-選 config、按 Run，5 階段燈即時接力、訓練曲線即時長、跑完成果圖直接看。train/optimize 前一定先跳預估時間，按確認才開跑。
-
-![訓練中：5 階段接力 + 訓練曲線即時長 / Training in flight](docs/screenshots/cockpit-training.jpg)
-
-![跑完：成果圖 gallery + mAP 0.9950 / Done: gallery + mAP](docs/screenshots/cockpit-done.jpg)
+- **5 Subagent 狀態指示燈**：即時掌握當前由哪位 Subagent 掌舵，資料下載完成即顯示落地路徑。
+- **訓練與驗證即時曲線**：Epoch / Loss / mAP@0.5 實時繪製，含**已耗時與預估剩餘時間**。
+- **即時非同步圖片串流 (Async Streaming Gallery)**：推論階段**完成一張即時呈現一張帶有 Bounding Box 的成果圖**！
+- **🪜 優化階梯成績單面板**：pipeline 尾端自動跑 `autocv report`，val/test 階梯表 + 圖表直接顯示在面板上。
+- **✨ 晶圓瑕疵 99.1% Showcase**：一鍵載入頂級成果，瞬間展示高精準瑕疵框與全維度成績單。
 
 ---
 
@@ -86,6 +87,8 @@ uv run autocv ui          # 開瀏覽器，零指令
 
 `train` / `optimize` 一定先印預估時間、停下等你確認才開跑。agent 被明文禁止加 `--yes`。
 **你的電費，你決定。** 這是設計，不是 bug。
+
+而且它會**訓練去重**：同名 run 已有 `best.pt` 就自動跳過訓練（駕駛艙也不會再跳確認窗）、直接進推論與成績單；真要重練，CLI 加 `--force`。重複跑一條龍不會重燒一次 GPU。
 
 ---
 

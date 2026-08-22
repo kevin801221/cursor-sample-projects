@@ -105,9 +105,9 @@ def test_csv_tail_emits_metric_events(tmp_path):
 def test_build_real_stages_shape():
     cfg = load_config(Path("configs/wafer.yaml"))
     names = [s.name for s in build_stages(cfg, Path.cwd(), optimize=False)]
-    assert names == ["data", "split", "train", "infer"]
+    assert names == ["data", "split", "train", "infer", "report"]
     opt = [s.name for s in build_stages(cfg, Path.cwd(), optimize=True)]
-    assert opt == ["data", "split", "optimize", "infer"]
+    assert opt == ["data", "split", "optimize", "infer", "report"]
     train = next(
         s for s in build_stages(cfg, Path.cwd(), optimize=False) if s.name == "train"
     )
@@ -122,10 +122,10 @@ def _fake_factory():
 
 
 def _blocking_factory():
-    # "train" 屬 GATED：runner 會卡在 _gate.wait()，未 confirm 前狀態恆為 running，
-    # 用來確定性測 409（不靠 sleep / 時間競態）。
+    # "train" 屬 GATED 且預估 > 0：runner 會卡在 _gate.wait()，未 confirm 前狀態恆為 running，
+    # 用來確定性測 409（不靠 sleep / 時間競態）。估 0 會跳過守門，所以要給正值。
     def factory(config: str, optimize: bool):
-        return PipelineRunner([Stage("train", lambda emit: None, estimate=lambda: 0.0)])
+        return PipelineRunner([Stage("train", lambda emit: None, estimate=lambda: 1.0)])
 
     return factory
 
@@ -168,3 +168,19 @@ def test_cli_has_ui_command():
     assert r.exit_code == 0 and "ui" in r.output
     r2 = CliRunner().invoke(cli_app, ["ui", "--help"])
     assert r2.exit_code == 0 and "--no-browser" in r2.output
+
+
+def test_runner_skips_gate_when_estimate_zero():
+    import time
+
+    from autocv.server.runner import PipelineRunner, Stage
+
+    ran = []
+    r = PipelineRunner([Stage("train", lambda emit: ran.append(1), estimate=lambda: 0.0)])
+    r.start()
+    for _ in range(50):
+        if r.status in ("done", "error"):
+            break
+        time.sleep(0.05)
+    assert r.status == "done" and ran == [1]  # estimate=0 不需 confirm 即完成
+    assert not any(e.kind == "await_confirm" for e in r.history)

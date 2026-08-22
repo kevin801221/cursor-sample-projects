@@ -58,8 +58,9 @@
 | 0:30–0:45 | 第 1 幕：5 Agent 分工 | `./demo.sh 1` | `auto-cv-.../CLAUDE.md` | DataPrep、Splitter、Trainer、Evaluator、Optimizer 職責 | 打一句話讓 agents 接力訓練模型 |
 | 0:45–1:15 | 第 2 幕：資料集與配置 | `./demo.sh 2` | `auto-cv-.../configs/wafer.yaml` | 晶圓瑕疵資料集規格、解析度、Batch Size 與模型架構 | 配置檔先行，鎖定實驗基準線 |
 | 1:15–2:45 | 第 3 幕：5 Agent 接力訓練 ⭐ | `./demo.sh 3` | `auto-cv-.../src/` | 5 階段流水線日誌：抽取 → 切分 → 訓練 → 評估 → 優化 | 流水線作業：每個 Agent 的輸出是下一個的輸入 |
-| 2:45–4:45 | 第 4 幕：優化階梯 (R1–R5) ⭐ | `./demo.sh 4` | `walkthrough.md` §E2 優化階梯 | mAP 演進表：Baseline 0.842 → R1 0.871 → R2 0.895 → R3 0.923 | 一次只動一個變因，科學推升 mAP |
-| 4:45–5:30 | 第 5 幕：AutoCV 駕駛艙 UI | `./demo.sh 5` | `auto-cv-.../ROADMAP.md` | 視覺化駕駛艙儀表板與紅框標註結果 | 完整電腦視覺模型落地體驗 |
+| 2:45–4:45 | 第 4 幕：aquarium 真實優化階梯 ⭐ | `./demo.sh 4` | `walkthrough.md` §E4 | 真實訓練的階梯成績表（aq-n-640 → aq-s-640 → aq-s-800） | 一次只動一個變因，科學推升 mAP |
+| 4:45–5:15 | 第 5 幕：metric 視覺化成績單 | `./demo.sh 5` | `runs/report/report.md` | 階梯表、per-class AP、confusion matrix、訓練曲線 | 指標判讀：從總體 mAP 到弱點類別 |
+| 5:15–5:45 | 第 6 幕：AutoCV 駕駛艙 UI | `./demo.sh 6` | 瀏覽器 | 5 Agent 燈號、即時曲線與耗時/ETA、成績單面板、訓練去重 | 完整電腦視覺模型落地體驗 |
 
 ---
 
@@ -96,6 +97,36 @@
 2. **Claude Code 對話**：說人話。『幫我下載並訓練』→ 五個人自動接力，你看著他們手交手的全過程。
 
 這份文件用第二種，因為最炫、最能看出『接力』的感覺。
+
+---
+
+## 0.5 五個角色住在哪裡：`.cursor/` 的三層體系
+
+上面五位職員不是比喻而已——他們實體存在於 repo 的 `.cursor/` 目錄，分成三層：
+
+```
+auto-cv-train-optimization-claude_code/.cursor/
+├── agents/     # 「誰做事」：5 個 subagent 角色卡（data-hunter、bbox-labeler、
+│               #   training-runner、hp-optimizer、inference-runner）
+├── skills/     # 「怎麼判斷」：6 個正式 Cursor Skills（做事的決策準則）
+└── rules/      # 「怎麼接力」：cv-subagents.mdc 規範接力順序與算力守門
+```
+
+**agents 是 5 個、skills 是 6 個，數量不同不是筆誤**：角色（誰）和準則（怎麼判斷）是兩回事。inference-runner 一個角色就用到 `cv-metrics-viz` 一整套判讀準則；hp-optimizer 則同時引用 `cv-hyperparameter-tuning` 和 `cv-optimization-ladder` 兩個 skill。
+
+| Skill | 什麼時候被 Cursor 自動載入 | 教你判斷什麼 |
+|---|---|---|
+| `cv-data-collection` | 挑資料集、填 config、下載驗證 | 標註品質抽查、授權、每資料集獨立目錄 |
+| `cv-dataset-qc` | 切資料、看 split 輸出 | 類別不平衡警訊、空 label、data leakage |
+| `cv-training` | 跑 train、改 train 區塊 | 模型/解析度/batch 決策樹、過擬合判讀 |
+| `cv-hyperparameter-tuning` | 想跑 optimize、問「還能不能再擠」 | 何時值得 tune、成本估算、結果怎麼用回去 |
+| `cv-metrics-viz` | 跑 report、判讀 mAP/PR/混淆矩陣 | 指標陷阱、per-class 找弱點、val/test 紀律 |
+| `cv-optimization-ladder` | 規劃下一階實驗、比較 run | 一次一變因、run 命名、何時停 |
+
+Skill 檔案格式是正式的 Cursor Skills（`SKILL.md` + frontmatter），`description` 欄寫明觸發情境，Cursor 會依當下任務自動判斷載入哪一個。想看內容：`cat .cursor/skills/cv-metrics-viz/SKILL.md`。
+
+> 🔍 **名詞卡：Cursor Skill vs Subagent vs Rule**
+> 白話：subagent 是「員工」、skill 是「員工手冊的某一章」、rule 是「公司 SOP」。員工接到任務時，會翻對應章節的手冊做判斷，並遵守公司 SOP 的接力順序。
 
 ---
 
@@ -214,6 +245,9 @@ cp .env.example .env
 | `uv run autocv train -c configs/wafer.yaml` | 訓練模型 | ⏸️ 會停下等你確認（預估時間） |
 | `uv run autocv optimize -c configs/wafer.yaml` | 超參搜尋 | ⏸️ 會停下等你確認（很耗時） |
 | `uv run autocv infer -c configs/wafer.yaml` | 推論 + 視覺化 | ❌ 不會，自動跑完 |
+| `uv run autocv report -c configs/wafer.yaml` | 評估所有 run + metric 視覺化 + 成績單 | ❌ 不會，自動跑完 |
+
+補充兩個常用開關：`train` 支援 `--force`（同名 run 已有權重時預設**跳過訓練直接沿用**，要重練才加 `--force`）；`all` 一條龍現在是 `data→split→train→infer→report`，尾端自動出成績單。
 
 ---
 
@@ -353,6 +387,32 @@ Summary saved to runs/infer/summary.md
 - **「找不到 best.pt」**：代表 training-runner 沒跑完或失敗。回頭檢查訓練有沒有正常完成。
 - **「test/ 資料夾不存在」**：說明標註品質太差、split 被 reject 了。或是你的資料集本身不帶 test split（Roboflow 有時預切、有時不）。CLI 會自動 fallback 用 val 來推論（會在 summary 註明「used validation set」）。
 - **成果圖畫得爆爛（框都不在物體上）**：要嘛訓練沒收斂（loss 沒往下），要嘛資料本身有問題。課堂備援：秀預先存的好成果圖。
+
+---
+
+## 4.5 📊 `autocv report`：把成績單畫出來
+
+`infer` 給你兩個總體數字，但兩個數字看不出「弱點在哪、下一步往哪走」。跑：
+
+```bash
+uv run autocv report -c configs/wafer.yaml
+```
+
+它會對 `runs/` 下**同一個資料集的每個 run** 各做一次 val + test 評估（結果快取在 `runs/<run>/metrics.json`，權重沒變就不重評），然後在 `runs/report/` 產出：
+
+| 檔案 | 看什麼 |
+|---|---|
+| `report.md` | 總覽：階梯表（val/test 並列）+ 下面所有圖 |
+| `ladder.png` | 各 run 的 test mAP 並排——哪一階有效一眼看出 |
+| `training_curves.png` | 各 run 的 val mAP 與 box loss 逐 epoch 曲線——收斂了沒、過擬合了沒 |
+| `per_class_ap.png` | 最佳 run 的逐類 AP——**弱點類別**在這裡現形 |
+| `confusion_matrix_normalized.png` | 哪兩類互相搞混、哪類被當成背景漏掉 |
+| `BoxPR_curve.png` | precision/recall 全貌，conf 門檻只是在曲線上挑工作點 |
+| `dataset_stats.png` | 資料面健檢：類別分佈 + bbox 大小分佈 |
+
+✅ **預期看到**：終端印出每個 run 的 test mAP@0.5 / mAP@0.5:0.95，`runs/report/report.md` 打開有表有圖。
+
+判讀順序（`cv-metrics-viz` skill 的核心口訣）：**ladder（哪階有效）→ curves（收斂沒）→ per-class（弱點在哪）→ confusion/PR（弱在哪種錯）→ dataset_stats（回資料面找原因）**。
 
 ---
 
@@ -583,6 +643,9 @@ uv run autocv ui
 - [ ] 跑過至少一階優化（R1 或 R2），看到成績變化
 - [ ] 會複製 config 改三行（workspace/project/version）換資料集
 - [ ] 用 Claude Code agent 跟 AI 對話，看過「五個 agent 接力」的完整演出
+- [ ] 跑過 `autocv report`，說得出階梯表 / per-class AP / confusion matrix 各要看什麼
+- [ ] 說得出六個 Cursor Skills 各自的觸發情境（§0.5 的表格）
+- [ ] 在 aquarium（難資料集）上看過「指標不飽和」長什麼樣，並能對照 wafer 解釋差異
 
 ## 常見坑排錯速查
 

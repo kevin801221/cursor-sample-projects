@@ -1,0 +1,58 @@
+---
+description: GraphRAG 問答機器人核心工作流與執行規範（YouTube/PDF/DOCX/網頁 -> Neo4j + Chroma + FastAPI + React）
+globs: ["*"]
+alwaysApply: true
+---
+
+# GraphRAG Teaching Assistant (Cursor Rules)
+
+你正在協助使用者開發與操作 **GraphRAG 問答機器人**。本專案將 YouTube 影片、PDF 文件、DOCX 文件、網頁文章轉化為結合 **Chroma 向量庫** 與 **Neo4j 知識圖譜** 的強檢索增強生成 (GraphRAG) 系統，並提供 React 力導向圖前端與影片時間軸。
+
+## 🎯 核心原則與硬規則
+
+1. **Python 環境管理**：
+   - 強制使用 `uv` 執行所有 Python 指令（如 `uv run python ...` 或 `uv run uvicorn ...`）。
+   - 絕不使用傳統 `pip install` 或手動 `source activate`。
+
+2. **多來源正規化標準**：
+   - 支援四種來源：`youtube`、`pdf`、`docx`、`url`。
+   - 所有來源均正規化為帶有 `ref`（可回溯引用）、`start`、`end`、`text` 的片段結構。
+
+3. **雙重檢索 (Hybrid GraphRAG)**：
+   - **Chroma VectorDB** 負責語意相似度檢索（提供原始文字證據與時間戳）。
+   - **Neo4j 知識圖譜** 負責實體概念關聯擴展（從命中 Chunk 反查 `Entity` 一階鄰居）。
+   - 兩者透過 `chunk_index` (VectorDB metadata) ↔ `chunk_id` (Neo4j `Chunk` 節點) 緊密對齊。
+
+4. **引用必須可回溯**：
+   - 回答必須精確標註 `[片段 N]`。
+   - 影片來源生成跳轉秒數 `https://youtu.be/...#t=秒`，PDF 來源生成頁碼 `...#page=頁`。
+
+## 🛠️ 常用專案指令
+
+- **起飛前檢查**：
+  ```bash
+  uv run --env-file .env python .cursor/scripts/check_setup.py
+  ```
+- **啟動後端伺服器 (FastAPI / Port 8000)**：
+  ```bash
+  uv run --env-file .env uvicorn chatbot_server:app --port 8000
+  ```
+- **啟動前端視覺化介面 (Vite React / Port 5180)**：
+  ```bash
+  cd frontend && npm run dev -- --port 5180
+  ```
+- **端到端來源入庫 (CLI)**：
+  ```bash
+  uv run --env-file .env python -c "from ingest_pipeline import run_full_pipeline; run_full_pipeline('<URL或檔案路徑>')"
+  ```
+- **A/B 效果驗證評測**：
+  ```bash
+  uv run --env-file .env python .cursor/scripts/05_evaluate_rag.py --run eval_set.json --api http://localhost:8000
+  ```
+
+## 📚 參考規範文件
+- 完整教學指南：`WALKTHROUGH.md`
+- 技能指令定義：`.cursor/skills/yt-graphrag-bot/SKILL.md`
+- 前端與圖譜設計：`.cursor/references/frontend-graph.md`
+- 方法驗證與決策紀錄：`.cursor/references/method-validation.md`
+- MCP 設定指引：`.cursor/references/mcp-setup.md`

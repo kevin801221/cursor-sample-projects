@@ -1,0 +1,39 @@
+---
+description: 多來源正規化入庫管線規範 (YouTube / PDF / DOCX / Web URL)
+globs: ["ingest_pipeline.py", "scripts/00_*", "scripts/01_*", "scripts/02_*"]
+alwaysApply: false
+---
+
+# Ingestion Pipeline Rules (多來源入庫管線)
+
+## 🔄 支援來源與解析策略
+
+| 來源類型 | 免費地端（預設） | 付費雲端 | 適用情境與細節 |
+| :--- | :--- | :--- | :--- |
+| **YouTube 影片** | `yt-dlp` | 無 | 優先抓取手動 CC 字幕，無 CC 則 fallback 自動字幕 (ASR) |
+| **PDF 文件** | `pymupdf` | `--engine llamaparse` | 純文字 PDF 用地端；掃描件、複雜多欄排版建議付費 OCR |
+| **DOCX 文件** | `python-docx` | 無 | 抽取所有段落文字及表格 (Table) 內容 |
+| **網頁 URL** | `trafilatura` | `--engine tavily` | 一般靜態/文章頁用地端；動態 JS 渲染或反爬頁面用 Tavily |
+
+## 📦 統一資料介面 (`source.json` / `dict`)
+```json
+{
+  "video_id": "8碼或12碼雜湊或YouTube_ID",
+  "source_type": "youtube | pdf | docx | url",
+  "title": "標題或檔名",
+  "url": "可點擊來源連結或 file:/// 路徑",
+  "segments": [
+    {
+      "start": 0,
+      "end": 60,
+      "text": "段落文字內容...",
+      "ref": "https://youtu.be/ID?t=0 或 file:///...#page=1"
+    }
+  ]
+}
+```
+
+## ⚙️ 切塊 (Chunking) 策略
+1. YouTube 字幕：先進行 60 秒時間窗聚合，再進行 800 字元語意切塊 (`chunk_overlap=120`)。
+2. 文件/網頁：單段聚合至 ≥200 字元，保留來源頁碼或段落錨點。
+3. 向量庫 Collection 固定為 `yt_rag`，儲存於 `./chroma_db`。

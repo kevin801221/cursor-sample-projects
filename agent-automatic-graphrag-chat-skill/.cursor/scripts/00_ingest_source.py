@@ -124,7 +124,7 @@ def ingest_docx(path: Path) -> dict:
 
 
 # ---------------- URL ----------------
-def extract_html(html: str, url: str) -> tuple[str | None, str | None]:
+def extract_html(html: str | bytes, url: str) -> tuple[str | None, str | None]:
     """trafilatura 正文抽取（獨立函式，方便離線測試）。回傳 (title, text)。"""
     import trafilatura
 
@@ -141,7 +141,9 @@ def ingest_url_free(url: str) -> dict:
     resp = requests.get(url, timeout=30,
                         headers={"User-Agent": "Mozilla/5.0 (teaching-bot)"})
     resp.raise_for_status()
-    title, text = extract_html(resp.text, url)
+    # 餵 bytes 讓 trafilatura 自己偵測編碼：header 沒宣告 charset 時
+    # resp.text 會退回 latin-1，中文全變亂碼
+    title, text = extract_html(resp.content, url)
     if not text:
         print("[!] 正文抽取失敗（可能是 JS 渲染頁）。改用 --engine tavily 成功率較高",
               file=sys.stderr)

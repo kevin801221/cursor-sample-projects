@@ -1,0 +1,19 @@
+{
+  "$schema": "https://cursor.com/schemas/cli-config.json",
+  "defaultModel": "claude-3-5-sonnet",
+  "maxTokens": 4096,
+  "temperature": 0.2,
+  "permissions": {
+    "autoApprove": [
+      "read",
+      "grep",
+      "git status",
+      "git diff"
+    ],
+    "deny": [
+      "rm -rf /",
+      "git push --force"
+    ]
+  },
+  "rulesPath": ".cursor/rules"
+}

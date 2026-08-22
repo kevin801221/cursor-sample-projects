@@ -444,3 +444,88 @@ uv run $E python scripts/05_evaluate_rag.py --run eval_set.json --api http://loc
 **影片請挑 20 分鐘以上**——本次用 6 分鐘的影片，就是因此測不出強 RAG 的增量。
 
 全綠就代表上面那塊「未驗證」也補上了。之後照 `WALKTHROUGH.md` 一路走。
+
+---
+
+## 七、重構版實測（2026-08-22）：根目錄 `ingest_pipeline.py` + `chatbot_server.py`
+
+前面六節驗的都是 `.cursor/scripts/` 那套教學腳本。專案後來重構出根目錄的
+模組化管線（`ingest_pipeline.py`）與整合式 server（`chatbot_server.py`，
+新增 `/ingest`、`/ingest/file`、`/status`、`/reset`），**這條新路徑之前沒被實測過**。
+本輪把它完整跑了一遍：真起 server、真上傳自製 DOCX/PDF、真打本地網頁、
+真問答驗證，測完把測試資料從兩庫清乾淨還原。
+
+### 實測通過的部分
+
+| 路線 | 實測方式 | 結果 |
+|---|---|---|
+| YouTube 擷取 | 新版 `ingest_youtube` 真抓字幕 | ✅ 人工中文字幕 522 段、時間戳 ref 正確 |
+| DOCX → 問答 | 含表格的自製檔走 `/ingest/file` | ✅ 段落與**表格內容**都能答對 |
+| PDF → 問答 | 自製檔走 `/ingest/file` | ✅ |
+| 網頁 URL → 問答 | 本地 HTTP server 模擬文章頁 | ✅（修掉編碼 bug 後） |
+| Chroma ↔ Neo4j 對齊 | 比對 `chunk_index` | ✅ 28/28 完全對齊 |
+
+### 只有實跑才現形的四個問題（全部已修）
+
+**🔴 I. `/ingest` 接受任意本機路徑（安全退化）。**
+SKILL.md 明訂「只收 http(s) 網址，不接受任意本機路徑」，但重構時防護沒跟過來：
+`fetch_source_data()` 看到非 http 開頭就當本機檔案開，實測 POST 一個本機
+PDF 路徑直接入庫成功。搭配 CORS `allow_origins=["*"]`，任何網頁都能打
+localhost 把本機文件灌進庫再用 `/chat` 撈內容。
+**修正**：`/ingest` 先驗 `startswith(("http://","https://"))`，回歸實測回 400。
+
+**🟠 J. URL 路線編碼 bug：header 沒宣告 charset 的中文頁全變亂碼。**
+`ingest_url_free()` 用 `resp.text`，requests 退回 latin-1，
+「阿爾卑斯冰川」變 `é¿ç¾åæ¯...`，而且就這樣寫進向量庫和圖譜。
+**修正**：改餵 `resp.content`（bytes）讓 trafilatura 自己偵測編碼
+（同步修了 `.cursor/scripts/00_ingest_source.py` 與 skill 包複本）。
+回歸實測標題與正文皆為正常中文。
+
+**🟠 K. 上傳檔案的引用是死連結 + 冪等失效。**
+`/ingest/file` 原本把檔案寫進暫存檔、請求結束就刪——`url_at_time` 全指向
+已刪除的 `file:///...T/tmpXXX`，「引用可回溯」對上傳檔案完全失效；
+且 `video_id` 是拿**暫存路徑**做雜湊，同檔重傳 id 每次不同，冪等清舊機制失效、資料疊加。
+**修正**：上傳檔保存到 `uploads/`（`Path(filename).name` 防目錄跳脫）、
+`video_id` 改用**檔案內容**雜湊（`_file_id()`）。回歸實測：同檔上傳兩次
+同一個 id、庫裡維持 2 chunks 不重複、ref 指向真實存在的檔案。
+
+**🟡 L. 多來源後檢索補位汙染 sources 與圖譜高亮。**
+檢索固定取 top 5，目標來源只有 2 個相關 chunk 時，剩下 3 格被別的來源補位，
+`graph_nodes` 混進無關實體（問量子計算文件、高亮出 ChatGPT/Transformer）。
+答案文字不受影響（prompt 守住了），但 UI 投影出來就是錯的。
+**修正**：改用 `similarity_search_with_score`，RRF 融合後加**相對距離門檻**
+（`DIST_RATIO = 1.7`，距離超過最相關片段 1.7 倍者視為補位雜訊丟掉）。
+門檻是實測校準的：gemini-embedding-001 下同主題片段比值 ≤1.65、
+跨主題雜訊 ≥1.9。回歸實測：混合語料問題的無關實體歸零、
+單一主題問題仍保有 5 sources 沒被誤砍。**換嵌入模型要重新校準這個值。**
+
+**🔴 M. SSRF：擋了本機檔案，卻沒擋內網 HTTP（自動安全掃描補抓）。**
+修完 I 之後，安全掃描指出同類問題的另一半：`/ingest` 收 http(s) 網址後
+`ingest_url_free()` 直接 `requests.get`，惡意網頁一樣能讓 server 去抓
+`169.254.169.254` metadata、路由器管理頁或其他 localhost 服務，
+內容入庫後經 `/chat` 外洩——本輪測試自己就是用 `localhost:8899` 灌資料的，
+等於實證了可行。
+**修正**：新增 `_assert_public_url()`（DNS 解析後用 `ipaddress.is_global`
+拒絕 loopback/私有/link-local/保留/多播位址），`ingest_url_free()` 改為
+**手動逐跳跟隨重導向、每跳重驗**（3xx 轉向內網會繞過只驗第一個網址的防護），
+`ingest_url_tavily()` 同樣先驗（不讓 server 被當成經 Tavily 掃內網的跳板）。
+測試/教學要灌 localhost 頁面時設 `ALLOW_PRIVATE_URLS=1`。
+已知邊界：只在發請求前驗一次，不防 DNS rebinding（教學版不值得上 IP pinning）。
+回歸實測：預設擋下 localhost/127.0.0.1/169.254.169.254/192.168.x、
+放行公網網址；`ALLOW_PRIVATE_URLS=1` 時原流程正常入庫。
+
+### 順手修的三件小事
+
+- `.doc`（舊二進位格式）原本收進來會在 python-docx 炸出難懂錯誤，改為
+  入口就拒收並提示「另存為 .docx」。
+- 無字幕影片的錯誤訊息補上 faster-whisper 地端轉錄指引。
+- `.gitignore` 還在忽略 `chatbot_server.py`（舊流程它是 `cp` 出來的產物，
+  重構後已是主程式卻沒被 git 追蹤）——已移出忽略清單，並加入 `uploads/`。
+
+### 本輪之後仍然為真的限制
+
+- 前端「4 階段進度條」是前端模擬，後端 `/ingest` 同步處理（README/WALKTHROUGH
+  已改為誠實描述）。要真進度得做背景工作佇列，教學版不值得。
+- 同名檔案上傳新版本時，舊版本的 chunks（不同內容雜湊）會留在庫裡。
+- 付費路線（LlamaParse / Tavily）與 whisper fallback 仍未實測（需金鑰／無字幕影片）。
+- §四的既有限制（judge 同模型、`/graph` 無來源過濾、Entity 不清理、無索引）不變。

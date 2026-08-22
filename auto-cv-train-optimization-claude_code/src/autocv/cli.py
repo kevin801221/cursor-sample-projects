@@ -16,6 +16,7 @@ app = typer.Typer(
 
 ConfigOpt = typer.Option("configs/wafer.yaml", "-c", "--config", help="config.yaml 路徑")
 YesOpt = typer.Option(False, "--yes", "-y", help="跳過訓練前確認")
+ForceOpt = typer.Option(False, "--force", help="同名 run 已有權重時仍強制重新訓練")
 
 
 def _ctx(config: str) -> tuple:
@@ -48,12 +49,12 @@ def split(config: str = ConfigOpt) -> None:
 
 
 @app.command()
-def train(config: str = ConfigOpt, yes: bool = YesOpt) -> None:
-    """訓練 YOLOv8 模型。"""
+def train(config: str = ConfigOpt, yes: bool = YesOpt, force: bool = ForceOpt) -> None:
+    """訓練 YOLOv8 模型（同名 run 已有權重時自動跳過）。"""
     from autocv.train import train as do_train
 
     cfg, root = _ctx(config)
-    do_train(cfg, root, yes=yes)
+    do_train(cfg, root, yes=yes, force=force)
 
 
 @app.command()
@@ -75,17 +76,28 @@ def infer(config: str = ConfigOpt) -> None:
 
 
 @app.command()
+def report(config: str = ConfigOpt) -> None:
+    """評估所有 run，產出 metric 視覺化 + report.md。"""
+    from autocv.report import report as do_report
+
+    cfg, root = _ctx(config)
+    do_report(cfg, root)
+
+
+@app.command()
 def all(
     config: str = ConfigOpt,
     yes: bool = YesOpt,
+    force: bool = ForceOpt,
     optimize_step: bool = typer.Option(
         False, "--optimize", help="用 optimize 取代 train"
     ),
 ) -> None:
-    """一條龍：data→split→(train|optimize)→infer。"""
+    """一條龍：data→split→(train|optimize)→infer→report。"""
     from autocv.data import download
     from autocv.infer import infer as do_infer
     from autocv.optimize import optimize as do_opt
+    from autocv.report import report as do_report
     from autocv.split import split as do_split
     from autocv.train import train as do_train
 
@@ -95,8 +107,9 @@ def all(
     if optimize_step:
         do_opt(cfg, root, yes=yes)
     else:
-        do_train(cfg, root, yes=yes)
+        do_train(cfg, root, yes=yes, force=force)
     do_infer(cfg, root)
+    do_report(cfg, root)
 
 
 @app.command()

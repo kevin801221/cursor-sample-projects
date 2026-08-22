@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # Project 13: AutoCV 5 個 AI Agent 自動訓練 YOLO 課堂遙控器
+# 所有幕都跑真實指令／真實檔案——沒有假數字。
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE="$(cd "$ROOT/.." && pwd)"
 REPO_DIR="$WORKSPACE/auto-cv-train-optimization-claude_code"
 cd "$REPO_DIR" || exit 1
-
-TOTAL=5
 
 banner() {
   echo
@@ -19,65 +18,94 @@ banner() {
   echo
 }
 
+need_data() {
+  if [ ! -f data/processed/aquarium/data.yaml ]; then
+    echo "⚠️  尚未下載/切分 aquarium 資料集。課前先跑："
+    echo "    uv run autocv data  -c configs/aquarium.yaml"
+    echo "    uv run autocv split -c configs/aquarium.yaml"
+    return 1
+  fi
+}
+
+need_report() {
+  if [ ! -f runs/report/report.md ]; then
+    echo "⚠️  尚未產出成績單。課前先跑完至少一個訓練，再："
+    echo "    uv run autocv report -c configs/aquarium.yaml"
+    return 1
+  fi
+}
+
 list_scenes() {
   echo
   echo "======================================================================"
   echo "  Project 13：AutoCV 5 個 AI Agent 自動訓練 YOLO － 課堂放映清單"
   echo "======================================================================"
-  echo "  1  5 個 AI Agent 團隊架構與角色分工 螢幕：Data / Split / Train / Eval / Opt 各職責"
-  echo "  2  晶圓瑕疵資料集配置 (wafer.yaml) 螢幕：Roboflow 下載配置、類別與模型參數"
-  echo "  3  模擬 5 Agent 接力訓練工作流 ⭐  螢幕：各 Agent 接力狀態、mAP@0.5 指標與損失曲線"
-  echo "  4  優化階梯 (R1–R5) 比較與調校策略 ⭐ 螢幕：一次只動一個變因，科學推升 mAP"
-  echo "  5  啟動 AutoCV 訓練視覺化駕駛艙     螢幕：瀏覽器開啟五階段燈號與訓練即時面板"
+  echo "  1  Agent 團隊三層體系 (.cursor/)      螢幕：agents / skills / rules 接力規範"
+  echo "  2  aquarium 難資料集配置              螢幕：Roboflow 下載配置與階梯三兄弟"
+  echo "  3  真實資料品管與切分 (bbox-labeler)  螢幕：638 張合併、標註驗證、類別不平衡"
+  echo "  4  真實優化階梯成績 ⭐                螢幕：autocv report 快取秒出各 run test mAP"
+  echo "  5  metric 視覺化成績單 ⭐             螢幕：階梯表 / per-class AP / 混淆矩陣"
+  echo "  6  啟動 AutoCV 訓練視覺化駕駛艙       螢幕：燈號、即時曲線+ETA、成績單面板、訓練去重"
   echo
   echo "  用法：./demo.sh <編號>"
   echo
 }
 
 scene_1() {
-  banner 1 "5 個 AI Agent 團隊架構與角色分工" \
-    "印出 CLAUDE.md 中的 5 個 Agent 職責說明" \
-    "打一句話讓 agents 接力訓練模型；分工明確才不會互踩狀態"
-  cat CLAUDE.md
+  banner 1 "Agent 團隊三層體系 (.cursor/)" \
+    "印出接力規範 + 5 個 agents 與 6 個 skills 清單" \
+    "agents 是誰做事、skills 是怎麼判斷、rules 是怎麼接力"
+  cat .cursor/rules/cv-subagents.mdc
+  echo
+  echo "── 5 個 agents ──";  ls .cursor/agents/
+  echo "── 6 個 skills ──";  ls .cursor/skills/
 }
 
 scene_2() {
-  banner 2 "晶圓瑕疵資料集配置 (wafer.yaml)" \
-    "檢視 configs/wafer.yaml 設定檔內容" \
-    "標準化配置檔：鎖定圖片尺寸、Batch Size、Epochs 與模型架構"
-  cat configs/wafer.yaml
+  banner 2 "aquarium 難資料集配置" \
+    "檢視 configs/aquarium.yaml 與階梯三個 config 的差異" \
+    "換資料集只改 config；每階只動一個變因、name 唯一"
+  cat configs/aquarium.yaml
+  echo
+  echo "── 階梯三兄弟（一次只動一個變因）──"
+  grep -H -E "^  (model|name|imgsz|batch):" configs/aquarium.yaml configs/aquarium-s.yaml configs/aquarium-s800.yaml
 }
 
 scene_3() {
-  banner 3 "模擬 5 Agent 接力訓練工作流" \
-    "展示 5 個 Agent 的接力日誌：資料抽取 → 資料切分 → YOLO 訓練 → 推論評估 → 優化建議" \
-    "流水線作業：每個 Agent 的輸出是下一個 Agent 的輸入"
-  echo "▶ Agent 1 (DataPrep): 檢查晶圓瑕疵圖片 450 張，標註格式 YOLOv8 ✓"
-  echo "▶ Agent 2 (Splitter): 切分 Train (70%) / Val (20%) / Test (10%) ✓"
-  echo "▶ Agent 3 (Trainer) : 載入 yolov8n.pt，執行 50 epochs 訓練... ✓"
-  echo "▶ Agent 4 (Evaluator): 驗算 mAP@0.5 = 0.842, Precision = 0.881 ✓"
-  echo "▶ Agent 5 (Optimizer): 提出 R1 優化建議（提高解析度 imgsz 640->800）✓"
+  banner 3 "真實資料品管與切分 (bbox-labeler)" \
+    "live 跑 autocv split：合併 638 張、逐行驗證標註、印類別分佈" \
+    "資料品管先於訓練；類別不平衡在這裡就看得到"
+  need_data || return 1
+  uv run autocv split -c configs/aquarium.yaml
 }
 
 scene_4() {
-  banner 4 "優化階梯 (R1–R5) 比較與調校策略" \
-    "展示優化階梯演進表：Baseline 0.842 → R1 (800px) 0.871 → R2 (Augment) 0.895 → R3 (yolov8s) 0.923" \
-    "科學優化法：一次只動一個變因，用客觀指標衡量，幾乎一定把成績推得更好"
-  echo "------------------------------------------------------------------------"
-  echo "  階梯 | 優化手法               | mAP@0.5 | 提升幅度 | 狀態"
-  echo "------------------------------------------------------------------------"
-  echo "  R0   | Baseline (wafer, 640px)| 0.842   | -        | 基準線"
-  echo "  R1   | 提高解析度 (800px)     | 0.871   | +2.9%    | ✓ 採納"
-  echo "  R2   | Mosaic + HSV 增強      | 0.895   | +2.4%    | ✓ 採納"
-  echo "  R3   | 升級模型 (yolov8s)     | 0.923   | +2.8%    | ✓ 採納"
-  echo "------------------------------------------------------------------------"
+  banner 4 "真實優化階梯成績" \
+    "live 跑 autocv report：metrics.json 快取命中，秒出各 run 的 test mAP" \
+    "一次只動一個變因，Δ 才能歸因；快取讓重跑零成本"
+  need_data || return 1
+  uv run autocv report -c configs/aquarium.yaml
 }
 
 scene_5() {
-  banner 5 "啟動 AutoCV 訓練視覺化駕駛艙" \
-    "啟動 Streamlit / UI 儀表板，即時呈現訓練燈號與推論成果" \
-    "視覺化成果展示與即時推論紅框預覽"
-  echo "▶ 提示：執行 uv run autocv ui 即可啟動完整視覺化駕駛艙"
+  banner 5 "metric 視覺化成績單" \
+    "印出 report.md 的階梯表與 per-class 表，列出所有圖檔" \
+    "指標判讀順序：ladder → curves → per-class → confusion/PR → dataset_stats"
+  need_report || return 1
+  sed -n '1,40p' runs/report/report.md
+  echo
+  echo "── 圖檔（投影時直接 open）──"
+  ls runs/report/*.png
+  echo "    open runs/report/ladder.png runs/report/per_class_ap.png"
+}
+
+scene_6() {
+  banner 6 "啟動 AutoCV 訓練視覺化駕駛艙" \
+    "瀏覽器開啟：5 Agent 燈號、即時曲線含耗時/ETA、下載位置、成績單面板" \
+    "訓練去重：同名 run 已有權重 → 免守門直接推論+出成績單"
+  echo "▶ 執行：uv run autocv ui   （瀏覽器 http://127.0.0.1:8787）"
+  echo "▶ 選 configs/aquarium.yaml 按 Run——已訓練過的 run 會直接跳過訓練，"
+  echo "  曲線瞬間重播歷史、推論與成績單照常更新。要重練：CLI 加 --force。"
 }
 
 case "${1:-}" in
@@ -87,5 +115,6 @@ case "${1:-}" in
   3) scene_3 ;;
   4) scene_4 ;;
   5) scene_5 ;;
+  6) scene_6 ;;
   *) echo "無效幕次：$1"; list_scenes; exit 1 ;;
 esac

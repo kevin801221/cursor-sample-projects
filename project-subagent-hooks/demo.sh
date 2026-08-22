@@ -5,7 +5,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT" || exit 1
 
-TOTAL=6
+TOTAL=8
 
 banner() {
   echo
@@ -22,12 +22,14 @@ list_scenes() {
   echo "======================================================================"
   echo "  Project Subagent + Hooks － 課堂放映清單（共 ${TOTAL} 幕）"
   echo "======================================================================"
-  echo "  1  核心心智模型與 Subagent 定義  螢幕：planner / security-auditor / verifier"
-  echo "  2  Hooks 骨架與五大鉤子配置    螢幕：.cursor/hooks.json 配置解析"
+  echo "  1  核心心智模型與 Subagent 定義  螢幕：planner / auditor / verifier / researcher"
+  echo "  2  Hooks 骨架與七大鉤子配置    螢幕：.cursor/hooks.json 配置解析"
   echo "  3  護欄一：攔截機密 .env 讀取 ⭐ 螢幕：guard-secrets.sh 放行 example 阻擋 .env"
-  echo "  4  護欄二：攔截破壞性指令 ⭐     螢幕：guard-shell.sh 攔截 migrate reset / drop"
+  echo "  4  護欄二：攔截破壞性指令 ⭐     螢幕：guard-shell.sh 攔 migrate reset / drop，force push 轉 ask"
   echo "  5  執行功能測試驗收            螢幕：node --test 原生測試 3/3 通過"
   echo "  6  Subagent 報告落檔與閉環回修  螢幕：subagent-report.sh 偵測 Critical 自動踢球"
+  echo "  7  護欄三：MCP 出境海關 ⭐      螢幕：guard-mcp.sh 攔截夾帶 secrets 的 MCP 參數"
+  echo "  8  護欄四：Subagent 拒生把關    螢幕：guard-subagent.sh 拒絕部署型 subagent + 留痕"
   echo
   echo "  用法：./demo.sh <編號>"
   echo
@@ -35,20 +37,23 @@ list_scenes() {
 
 scene_1() {
   banner 1 "核心心智模型與 Subagent 定義" \
-    "檢視 .cursor/agents/ 裡的三大專業分工角色" \
+    "檢視 .cursor/agents/ 裡的四大專業分工角色" \
     "Subagent 決定「誰來做這件事」，隔離 Context 與平行處理"
-  echo "--- ① planner.md (先想再做) ---"
+  echo "--- ① planner.md (先想再做，巢狀開 Explore + MCP 查文件) ---"
   cat .cursor/agents/planner.md
   echo
-  echo "--- ② security-auditor.md (平行資安稽核) ---"
+  echo "--- ② security-auditor.md (平行資安稽核，讀 checklist skill) ---"
   cat .cursor/agents/security-auditor.md
   echo
   echo "--- ③ verifier.md (懷疑論驗證) ---"
   cat .cursor/agents/verifier.md
+  echo
+  echo "--- ④ docs-researcher.md (subagent 調用 MCP 查官方文件) ---"
+  cat .cursor/agents/docs-researcher.md
 }
 
 scene_2() {
-  banner 2 "Hooks 骨架與五大鉤子配置" \
+  banner 2 "Hooks 骨架與七大鉤子配置" \
     "檢視 .cursor/hooks.json 與 failClosed 安全屬性" \
     "Hook 決定「什麼一定會發生、什麼絕對不准發生」"
   cat .cursor/hooks.json
@@ -68,11 +73,14 @@ scene_3() {
 scene_4() {
   banner 4 "護欄二：攔截破壞性指令" \
     "執行 guard-shell.sh 模擬危險指令" \
-    "確定性攔截 migrate reset 與 drop table，並反饋替代方案給 Agent"
+    "確定性攔截 migrate reset 與 drop table（deny＋給替代方案），force push 轉 ask 問人"
   echo "1. 模擬 Agent 嘗試執行 prisma migrate reset:"
   echo '{"command": "npx prisma migrate reset --force"}' | .cursor/hooks/guard-shell.sh
   echo
-  echo "2. 模擬 Agent 嘗試執行 force push:"
+  echo "2. 模擬 Agent 嘗試執行 drop table:"
+  echo '{"command": "psql -c \"drop table users\""}' | .cursor/hooks/guard-shell.sh
+  echo
+  echo "3. 模擬 Agent 嘗試執行 force push（不擋死，轉 ask 問人）:"
   echo '{"command": "git push origin main --force"}' | .cursor/hooks/guard-shell.sh
 }
 
@@ -93,6 +101,31 @@ scene_6() {
   ls -t .cursor/reports/ | head -n 3
 }
 
+scene_7() {
+  banner 7 "護欄三：MCP 出境海關" \
+    "執行 guard-mcp.sh 模擬夾帶 secrets 的 MCP 呼叫" \
+    "MCP 是資料離開本機的通道，beforeMCPExecution 是海關（subagent 內部呼叫是否逐一觸發，官方未載明——請實測驗證）"
+  echo "1. 模擬 Agent 用 context7 查文件（乾淨參數，應放行）:"
+  echo '{"tool_name": "context7_query", "tool_input": {"query": "express rate limit middleware"}}' | .cursor/hooks/guard-mcp.sh
+  echo
+  echo "2. 模擬 Agent 把 API key 夾在 MCP 參數裡外送（應攔截）:"
+  echo '{"tool_name": "some_tool", "tool_input": {"body": "please review sk-abc123def456ghi789jkl"}}' | .cursor/hooks/guard-mcp.sh
+}
+
+scene_8() {
+  banner 8 "護欄四：Subagent 拒生把關" \
+    "執行 guard-subagent.sh 模擬 spawn 部署型 subagent" \
+    "subagentStart 在分身出生前把關——連生出來的機會都不給（注意：此事件回 ask 會被當 deny）"
+  echo "1. 模擬 spawn 一般稽核任務的 subagent（應放行）:"
+  echo '{"subagent_type": "generalPurpose", "task": "audit DELETE /api/account"}' | .cursor/hooks/guard-subagent.sh
+  echo
+  echo "2. 模擬 spawn 部署型 subagent（應拒生）:"
+  echo '{"subagent_type": "shell", "task": "deploy the new build to production"}' | .cursor/hooks/guard-subagent.sh
+  echo
+  echo "spawn 留痕（.cursor/state/subagent-spawns.log 最後 3 筆）："
+  tail -n 3 .cursor/state/subagent-spawns.log
+}
+
 case "${1:-}" in
   "") list_scenes ;;
   1) scene_1 ;;
@@ -101,5 +134,7 @@ case "${1:-}" in
   4) scene_4 ;;
   5) scene_5 ;;
   6) scene_6 ;;
+  7) scene_7 ;;
+  8) scene_8 ;;
   *) echo "無效幕次：$1"; list_scenes; exit 1 ;;
 esac

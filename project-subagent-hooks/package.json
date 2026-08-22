@@ -11,6 +11,9 @@
   "keywords": ["subagents", "hooks", "cursor"],
   "author": "Kevin",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.18"
+  },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "prettier": "^3.2.5",

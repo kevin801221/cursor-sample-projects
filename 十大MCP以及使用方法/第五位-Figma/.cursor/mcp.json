@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "figma-developer-mcp", "--figma-api-key", "${env:FIGMA_ACCESS_TOKEN}"]
+    }
+  }
+}

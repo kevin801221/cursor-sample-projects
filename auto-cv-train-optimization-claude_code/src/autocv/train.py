@@ -24,11 +24,18 @@ def _estimate_minutes(n_imgs: int, epochs: int, batch: int) -> float:
     return iters * 0.2 / 60.0
 
 
-def train(cfg: Config, root: Path, yes: bool = False) -> Path:
-    """訓練並回傳 best.pt 路徑。"""
+def train(cfg: Config, root: Path, yes: bool = False, force: bool = False) -> Path:
+    """訓練並回傳 best.pt 路徑；同名 run 已有權重時跳過訓練（除非 force）。"""
     data_yaml = root / cfg.paths.processed / "data.yaml"
     if not data_yaml.exists():
         raise SystemExit(f"找不到 {data_yaml}，請先跑 autocv split")
+
+    existing = root / cfg.paths.runs / cfg.train.name / "weights" / "best.pt"
+    if existing.exists() and not force:
+        typer.echo(
+            f"⏭️  {cfg.train.name} 已訓練過（{existing}），跳過訓練直接沿用；要重練請加 --force"
+        )
+        return existing
 
     device = pick_device(cfg.train.device)
     n_imgs = _count_train_imgs(root / cfg.paths.processed)
@@ -38,7 +45,7 @@ def train(cfg: Config, root: Path, yes: bool = False) -> Path:
         f"- train 圖片: {n_imgs}\n"
         f"- epochs={cfg.train.epochs} batch={cfg.train.batch} device={device}\n"
         f"- 預估時間: 約 {est:.1f} 分鐘\n"
-        f"- 輸出: {root / cfg.paths.runs}/train/"
+        f"- 輸出: {root / cfg.paths.runs}/{cfg.train.name}/"
     )
     if not yes and not typer.confirm("要開始訓練嗎？"):
         raise typer.Abort()
@@ -54,7 +61,7 @@ def train(cfg: Config, root: Path, yes: bool = False) -> Path:
         imgsz=cfg.train.imgsz,
         device=device,
         project=str(root / cfg.paths.runs),
-        name="train",
+        name=cfg.train.name,
         exist_ok=True,
     )
     best = Path(results.save_dir) / "weights" / "best.pt"

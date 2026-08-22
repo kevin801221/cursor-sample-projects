@@ -5,11 +5,13 @@
       { "command": ".cursor/hooks/guard-secrets.sh", "failClosed": true }
     ],
     "beforeShellExecution": [
-      {
-        "command": ".cursor/hooks/guard-shell.sh",
-        "matcher": "rm\\s+-rf|drop\\s+(table|database)|truncate|migrate\\s+reset|--force",
-        "failClosed": true
-      }
+      { "command": ".cursor/hooks/guard-shell.sh", "failClosed": true }
+    ],
+    "beforeMCPExecution": [
+      { "command": ".cursor/hooks/guard-mcp.sh", "failClosed": true }
+    ],
+    "subagentStart": [
+      { "command": ".cursor/hooks/guard-subagent.sh" }
     ],
     "afterFileEdit": [
       { "command": ".cursor/hooks/format-edit.sh", "timeout": 15 }

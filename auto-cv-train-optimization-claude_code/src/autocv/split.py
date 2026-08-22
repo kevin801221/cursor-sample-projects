@@ -45,36 +45,43 @@ def validate_label_file(label_path: Path) -> tuple[list[str], list[int], int]:
     return errors, class_ids, bbox_count
 
 
-def _find_src(raw_dir: Path) -> tuple[Path, Path, Path]:
-    """找出 raw 下的 images / labels / data.yaml（相容 train/ 子層）。"""
-    for base in (raw_dir, raw_dir / "train"):
+def _find_srcs(raw_dir: Path) -> tuple[list[tuple[Path, Path]], Path]:
+    """找出 raw 下所有 images/labels 配對（含 Roboflow 預切分的 train/valid/test），合併後重切。"""
+    pairs: list[tuple[Path, Path]] = []
+    for base in (raw_dir, raw_dir / "train", raw_dir / "valid", raw_dir / "test"):
         img_dir = base / "images"
         lbl_dir = base / "labels"
         if img_dir.is_dir() and lbl_dir.is_dir():
-            yaml_path = raw_dir / "data.yaml"
-            return img_dir, lbl_dir, yaml_path
-    raise FileNotFoundError(f"{raw_dir} 下找不到 images/ 與 labels/，請先跑 autocv data")
+            pairs.append((img_dir, lbl_dir))
+    if not pairs:
+        raise FileNotFoundError(f"{raw_dir} 下找不到 images/ 與 labels/，請先跑 autocv data")
+    return pairs, raw_dir / "data.yaml"
 
 
 def split(cfg: Config, root: Path) -> Path:
     """執行驗證 + 切分，回傳 processed/data.yaml 路徑。"""
     raw_dir = root / cfg.paths.raw
     out_dir = root / cfg.paths.processed
-    img_dir, lbl_dir, raw_yaml = _find_src(raw_dir)
+    src_pairs, raw_yaml = _find_srcs(raw_dir)
 
     raw_cfg = yaml.safe_load(raw_yaml.read_text())
     names = raw_cfg["names"]
     nc = raw_cfg["nc"]
 
-    images = sorted(p for p in img_dir.iterdir() if p.suffix.lower() in IMG_EXTS)
-    print(f"圖片總數: {len(images)}")
+    images = sorted(
+        (p, lbl_dir)
+        for img_dir, lbl_dir in src_pairs
+        for p in img_dir.iterdir()
+        if p.suffix.lower() in IMG_EXTS
+    )
+    print(f"圖片總數: {len(images)}（來源目錄 {len(src_pairs)} 組）")
 
     all_errors: list[str] = []
     class_counter: Counter[int] = Counter()
     total_bbox = 0
     empty_labels = 0
     paired: list[tuple[Path, Path]] = []
-    for img in images:
+    for img, lbl_dir in images:
         lbl = lbl_dir / f"{img.stem}.txt"
         errors, cids, bcount = validate_label_file(lbl)
         all_errors.extend(errors)
@@ -104,13 +111,19 @@ def split(cfg: Config, root: Path) -> Path:
         "val": shuffled[n_train : n_train + n_val],
         "test": shuffled[n_train + n_val :],
     }
+    # 多來源目錄可能出現同名檔案（0.jpg 各子目錄都有）；重名時加來源目錄前綴避免靜默覆蓋
+    name_counts = Counter(img.name for img, _ in paired)
     for s in splits:
+        # 重跑 split 時清掉舊檔，避免舊分派殘留造成 train/test 洩漏
+        shutil.rmtree(out_dir / "images" / s, ignore_errors=True)
+        shutil.rmtree(out_dir / "labels" / s, ignore_errors=True)
         (out_dir / "images" / s).mkdir(parents=True, exist_ok=True)
         (out_dir / "labels" / s).mkdir(parents=True, exist_ok=True)
     for s, items in splits.items():
         for img, lbl in items:
-            shutil.copy2(img, out_dir / "images" / s / img.name)
-            shutil.copy2(lbl, out_dir / "labels" / s / lbl.name)
+            prefix = f"{img.parent.parent.name}_" if name_counts[img.name] > 1 else ""
+            shutil.copy2(img, out_dir / "images" / s / f"{prefix}{img.name}")
+            shutil.copy2(lbl, out_dir / "labels" / s / f"{prefix}{lbl.name}")
         print(f"{s}: {len(items)} 張")
 
     out_yaml = {

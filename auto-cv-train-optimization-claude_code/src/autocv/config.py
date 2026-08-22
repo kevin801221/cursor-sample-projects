@@ -33,6 +33,7 @@ class DatasetCfg:
 @dataclass
 class TrainCfg:
     model: str = "yolov8n.pt"
+    name: str = "train"
     epochs: int = 50
     batch: int = 8
     imgsz: int = 416

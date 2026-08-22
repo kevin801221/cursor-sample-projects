@@ -11,11 +11,11 @@ __pycache__/
 # 執行產物
 chroma_db/
 subs/
+uploads/
 source.json
 transcript.json
 eval_set.json
 eval_report.json
-chatbot_server.py
 
 # 跑流程時掉出來的暫存圖檔（yt-dlp 縮圖等）。
 # 只擋根目錄這層，docs/ 底下的 README 截圖要保留。

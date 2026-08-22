@@ -1,0 +1,44 @@
+---
+description: AutoCV 五大 Subagent 自動化訓練接力架構與執行準則（data-hunter -> bbox-labeler -> training-runner -> hp-optimizer -> inference-runner）
+globs: ["*"]
+alwaysApply: true
+---
+
+# AutoCV AI Agent 團隊協作規範 (Cursor Rules)
+
+本專案將電腦視覺模型（YOLO）的完整研發與訓練流程，封裝為 **5 個專業分工的 Subagent**，每個 Subagent 各自負責單一職責，並依賴專屬的 Skill 做出精確決策。
+
+## 🤖 5 大 Subagent 分工與接力順序
+
+```
+┌──────────────┐     ┌──────────────┐     ┌─────────────────┐
+│ data-hunter  │ ──► │ bbox-labeler │ ──► │ training-runner │
+└──────────────┘     └──────────────┘     └────────┬────────┘
+                                                   │
+                   ┌──────────────────┐            │ (可選優化)
+                   │ inference-runner │ ◄──────────┴──► ┌──────────────┐
+                   │ (主考官/出成績單)  │                │ hp-optimizer │
+                   └──────────────────┘                └──────────────┘
+```
+
+1. **`data-hunter`**：從 Roboflow Universe 下載原始資料集至 `data/raw/`。
+   - 技能：`@.cursor/skills/cv-data-collection/SKILL.md`
+2. **`bbox-labeler`**：驗證標註、清洗資料並切分 train/val/test 至 `data/processed/`。
+   - 技能：`@.cursor/skills/cv-dataset-qc/SKILL.md`
+3. **`training-runner`**：執行 YOLO 訓練，產生 `runs/<name>/weights/best.pt`。
+   - 技能：`@.cursor/skills/cv-training/SKILL.md`
+4. **`hp-optimizer`**：使用 Ultralytics Tuner 進行超參數搜尋。
+   - 技能：`@.cursor/skills/cv-hyperparameter-tuning/SKILL.md`、`@.cursor/skills/cv-optimization-ladder/SKILL.md`
+5. **`inference-runner`**：執行測試集推論、繪製 Bounding Box 並產出全維度評估報告。
+   - 技能：`@.cursor/skills/cv-metrics-viz/SKILL.md`
+
+## 🎯 核心原則與硬規則
+
+1. **Python 依賴一律使用 `uv`**：
+   - 執行指令：`uv run autocv <command>` 或 `uv run uvicorn ...`。
+2. **算力確認守門閘門 (Compute Gate)**：
+   - 訓練或超參調優前，必須先回報預估耗時，等使用者確認（回覆 "GO"）後才可開始。禁止未經許可加上 `--yes`。
+3. **換資料集只改 YAML**：
+   - 任何新專案僅需在 `configs/` 新增或修改 YAML 設定檔，核心程式碼不需改動。
+4. **視覺化駕駛艙 (UI)**：
+   - 可執行 `uv run autocv ui` 啟動前端駕駛艙，即時監控訓練曲線、即時串流 BBox 推論成果。

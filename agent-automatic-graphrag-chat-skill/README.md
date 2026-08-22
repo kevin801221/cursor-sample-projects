@@ -1,148 +1,143 @@
-# yt-graphrag-bot
+# yt-graphrag-bot (Cursor Native GraphRAG Assistant)
 
-**丟一個 YouTube 連結（或 PDF / DOCX / 網頁），建出一個會回答內容、會附時間戳引用、
-還會即時高亮知識圖譜的問答機器人。**
+**丟一個 YouTube 連結（或 PDF / DOCX / 網頁），建出一個會回答內容、會附時間戳引用、還會即時高亮知識圖譜的問答機器人。**
 
-一個可以掛給 **Claude Code / Cursor / Codex** 三個工具使用的 skill。
-LLM 走 Gemini，套件用 uv 管理。
+本專案已完全包裝為 **Cursor 專屬工具與規則集合**（含 `.cursor/rules/`、`.cursor/commands/`、`.cursor/mcp.json`），同時相容 Claude Code 與 Codex。
+LLM 核心走 Gemini，套件強制使用 `uv` 管理，圖資料庫採用地端 Neo4j，向量資料庫採用 ChromaDB。
 
 ![問答畫面](docs/screenshot.png)
 
-三個視圖是**同一次檢索的三種投影**：對話說「答案是什麼」，圖譜說「牽涉哪些概念、
-怎麼連」，底部時間軸說「這些話是從影片的哪幾個位置撈出來的」。
+三個視圖是**同一次檢索的三種投影**：對話說「答案是什麼」，圖譜說「牽涉哪些概念、怎麼連」，底部時間軸說「這些話是從影片/文件的哪幾個位置撈出來的」。
 
 ---
 
-## 這是什麼
+## 🎯 專案特色
 
-這既是一個**可以跑的專案**，也是一份**教材**。
+1. **Cursor 原生整合**：
+   - 內建 `.cursor/mcp.json` 自動連接地端 Neo4j MCP 與 Chroma MCP。
+   - 內建 `.cursor/rules/*.mdc` 與 `.cursor/commands/*.md`（支援 `/yt-graphrag-bot`、`/ingest`、`/check-setup`、`/run-app`、`/evaluate`）。
+2. **多來源統一入庫 (端到端 GraphRAG)**：
+   - 🎥 **YouTube 影片**（自動抓取 CC 字幕 / ASR 自動字幕）
+   - 📄 **PDF 文件**（地端 PyMuPDF / 雲端 LlamaParse OCR）
+   - 📝 **Word DOCX**（自動抽取所有段落與表格數據）
+   - 🌐 **網頁文章 URL**（地端 Trafilatura / 雲端 Tavily Extract）
+3. **前端視覺化匯入與問答介面**：
+   - 支援在前端 UI 直接點擊 **`+ 匯入新來源`** 貼上網址或拖曳上傳文件，完成後自動熱重載圖譜。
+   - 上傳檔案保存於後端 `uploads/`（引用連結 `file://...#page=N` 入庫後仍可回溯）；同檔重傳以內容雜湊冪等覆蓋。
+   - `/ingest` 只接受 http(s) 網址（本機檔案一律走 `/ingest/file` 上傳），並內建 SSRF 防護：拒絕解析到內網/保留位址的網址與重導向（測試環境可設 `ALLOW_PRIVATE_URLS=1` 放行）。
+4. **強 RAG 檢索生成 (Hybrid GraphRAG)**：
+   - Multi-Query 改寫 ➔ Chroma 向量檢索 ➔ RRF 排名融合 ➔ Neo4j 圖譜一階鄰居擴展 ➔ 附帶精確時間戳/頁碼引用的精準生成。
 
-跑完你會有：一個左聊天右圖譜的網頁。問一個問題 → 答案出現、附可點的來源連結
-（影片跳到第幾秒 / PDF 跳到第幾頁）→ 右側相關節點同步變橘色 → 點任一節點 →
-鄰居子圖瞬間展開 → 底部時間軸亮出證據在影片的分布。
+---
 
-但它真正想教的是一個模式：
+## 🚀 快速開始
 
-> **skill = 腳本（確定性步驟）+ MCP（即時查詢驗證）+ 分階段指引**
-
-每個 Phase 結束都有「驗證點」——**邊建邊驗，而不是最後才 debug**。
-而且每個 MCP 驗證點都附「無 MCP 替代指令」，環境沒接 MCP 也不會卡住。
-
-## 快速開始
-
-需要：Python 3.12+、[uv](https://docs.astral.sh/uv/)、Docker、
-一把免費的 [Google AI Studio](https://aistudio.google.com) 金鑰。
+### 1. 環境需求與依賴安裝
+需要：Python 3.12+、[uv](https://docs.astral.sh/uv/)、Docker、Node.js 18+、一把免費的 [Google AI Studio](https://aistudio.google.com) 金鑰。
 
 ```bash
 git clone git@github.com:kevin801221/agent-automatic-graphrag-chat-skill.git
 cd agent-automatic-graphrag-chat-skill
 uv sync
+```
 
-export GOOGLE_API_KEY="AIza..."      # GEMINI_API_KEY 也吃
-export NEO4J_PASSWORD="你自訂的密碼"
+### 2. 設定環境變數 (`.env`)
+在專案根目錄建立或編輯 `.env`：
+```ini
+GOOGLE_API_KEY=AIzaSy...
+GEMINI_API_KEY=AIzaSy...
+NEO4J_PASSWORD=teach12345
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+```
 
+### 3. 啟動地端 Neo4j 與起飛前檢查
+```bash
+# 啟動 Neo4j Docker 容器
 docker run -d --name neo4j-teach -p 7474:7474 -p 7687:7687 \
-  -e NEO4J_AUTH=neo4j/$NEO4J_PASSWORD neo4j:5 && sleep 25
+  -e NEO4J_AUTH=neo4j/teach12345 neo4j:5
 
-uv run python scripts/check_setup.py     # 沒全綠不要往下
+# 執行系統檢查（沒全綠不要往下）
+uv run --env-file .env python .cursor/scripts/check_setup.py
 ```
 
-> 金鑰放 `.env` 的話，每條指令要加 `--env-file .env`。
-> 用 `export` 的話請寫進 `~/.zshenv`（**不是 `~/.zshrc`**）——
-> 非互動 shell 不讀 `.zshrc`，agent 開的 shell 會看不到。
+### 4. 啟動後端與前端服務
 
-全綠之後：
-
+**啟動 FastAPI 後端 (Port 8000)：**
 ```bash
-uv run python scripts/00_ingest_source.py "<你的影片網址>" --out source.json
-uv run python scripts/02_ingest_vectordb.py source.json --persist ./chroma_db
-uv run python scripts/03_build_graph.py source.json
-
-cp scripts/04_chatbot_server.py chatbot_server.py
-uv run uvicorn chatbot_server:app --port 8010
+uv run --env-file .env uvicorn chatbot_server:app --port 8000
 ```
 
-逐步教學（含每一步的「為什麼」、成功判準、卡住怎麼辦）：**[WALKTHROUGH.md](WALKTHROUGH.md)**
-
-> **選材建議**：挑 20 分鐘以上的影片。語料太小（總 chunk < ~30）時，
-> naive baseline 光 `k=5` 就撈走大半語料，方法驗證那步一定測不出差異。
-
-## 掛給編輯器用
-
+**啟動 React 前端介面 (Port 5180)：**
 ```bash
-./install.sh                 # 裝到目前目錄的專案
-./install.sh --global        # Claude Code / Codex 裝到使用者層
+cd frontend
+npm install
+npm run dev -- --port 5180
 ```
 
-| 平台 | 產生什麼 | 怎麼用 |
+打開瀏覽器存取 **[http://localhost:5180](http://localhost:5180)** 即可開始使用！
+
+---
+
+## ⚡ 在 Cursor 中使用
+
+本專案已完全配置 Cursor 原生開發環境：
+
+| 工具路徑 | 功能說明 | 使用方式 |
 |---|---|---|
-| **Claude Code** | `.claude/skills/yt-graphrag-bot`（symlink） | 講「我想拿這支影片做問答機器人」就會觸發，或 `/yt-graphrag-bot` |
-| **Cursor** | `.cursor/rules/*.mdc` + `.cursor/commands/*.md` | 描述命中時自動載入，或 `/yt-graphrag-bot` |
-| **Codex** | `AGENTS.md` 標記區塊 / `~/.codex/prompts/*.md` | 自動讀，或 `/yt-graphrag-bot` |
+| **`.cursor/mcp.json`** | 自動連接 Neo4j Cypher 與 Chroma MCP | Cursor 自動偵測並啟用 MCP 工具 |
+| **`.cursor/rules/*.mdc`** | GraphRAG 核心規則、Neo4j Schema、切塊標準 | 在編輯相關檔案或對話時自動生效 |
+| **`.cursor/commands/*.md`** | 快速斜線指令 | 在聊天框輸入 `/yt-graphrag-bot` 或 `/ingest` |
 
-三個平台各放一個**指路的殼**，內容都指向同一份 `SKILL.md`——不複製，因為複製就會漂移。
-`install.sh` 可重複執行，`AGENTS.md` 用標記包住，重跑會覆蓋不會疊加。
+### 常用 Slash 指令
+- `/yt-graphrag-bot`：執行完整的 GraphRAG 建構指引
+- `/ingest <網址或檔案>`：將 YouTube、PDF、DOCX 或網頁直接匯入系統
+- `/check-setup`：執行起飛前環境檢查
+- `/run-app`：啟動後端與前端服務
+- `/evaluate`：執行 Baseline vs Strong GraphRAG A/B 盲評
 
-## 資料流
+---
+
+## 📊 資料流架構
 
 ```
 YouTube URL ─┐
-PDF / DOCX ──┼─ [1] 00_ingest_source.py 統一入口
+PDF / DOCX ──┼─ [1] ingest_pipeline.py 統一入口
 網頁 URL ────┘     每種來源都有 免費地端 / 付費雲端 兩條路線
                   → 正規化 source.json（帶可回溯 ref：時間戳 / 頁碼 / 網址）
-       └─ [2] 聚合 + 切塊 → Chroma VectorDB
-       └─ [3] Gemini 抽三元組 → Neo4j（Entity─REL─Entity─MENTIONED_IN─Chunk）
+       └─ [2] 聚合 + 切塊 → Chroma VectorDB (./chroma_db)
+       └─ [3] Gemini 抽三元組 → Neo4j (Entity─REL─Entity─MENTIONED_IN─Chunk)
             └─ [4] 強 RAG：Multi-Query → 向量檢索 → RRF 融合 → 圖譜擴展 → 生成
-                 └─ [5] FastAPI /chat + /graph + /chunks
+                 └─ [5] FastAPI /chat + /graph + /chunks + /ingest
                       └─ [4.5] 方法驗證：naive vs 強 RAG 的 A/B 盲評
-                      └─ [6] React 力導向圖前端
+                      └─ [6] React 力導向圖前端 + 匯入新來源 Modal
 ```
 
-**VectorDB 和 GraphDB 不是二選一**：圖譜負責「找到相關概念與其連結」，
-chunk 負責「提供原文證據與時間戳」。兩者用 `chunk_index` ↔ `chunk_id` 精確對齊。
+---
 
-## 檔案
+## 📁 專案檔案結構
 
-| | |
-|---|---|
-| `SKILL.md` | 流程編排、判斷邏輯、每步的「為什麼」。三個平台都讀這份 |
-| `WALKTHROUGH.md` | 一步一步的操作教學，含預期輸出與卡點速查 |
-| `EVALUATION.md` | 實跑評估報告：修過哪些缺陷、哪些沒修、哪些沒驗證 |
-| `scripts/` | 七支 .py，確定性、可重跑、**冪等** |
-| `references/` | MCP 設定 / 前端 / 方法驗證，按需載入不塞爆主文件 |
-| `install.sh` | 三平台安裝 |
+```
+.
+├── .cursor/                  # Cursor 專屬配置與全套技能包
+│   ├── mcp.json              # Neo4j & Chroma MCP 配置
+│   ├── rules/                # 專案規則 (yt-graphrag-bot, neo4j, ingest)
+│   ├── commands/             # Slash 指令 (yt-graphrag-bot, ingest, check-setup, run-app, evaluate)
+│   ├── skills/yt-graphrag-bot/ # Cursor 原生 Skill 包 (含 SKILL.md, scripts/, references/)
+│   ├── scripts/              # 入庫、抽取與評測腳本
+│   ├── references/           # 參考指南 (前端, MCP, 方法驗證)
+│   └── SKILL.md              # 技能定義檔
+├── frontend/                 # Vite + React 前端介面
+│   ├── src/App.jsx           # 力導向圖譜 + 對話 + 時間軸 + 來源匯入 Modal
+│   └── src/index.css         # 設計 Token 與樣式
+├── ingest_pipeline.py        # 模組化端到端入庫管線
+├── chatbot_server.py         # FastAPI 主服務 (含 /chat, /graph, /chunks, /ingest)
+├── uploads/                  # 前端上傳檔案的持久保存區（執行時生成，git 忽略）
+├── WALKTHROUGH.md            # 詳細逐步教學與實戰手冊
+└── EVALUATION.md             # 實跑評估報告與改進紀錄
+```
 
-前端程式碼在 `references/frontend-graph.md` 裡（完整可貼上的 `App.jsx` + `index.css`）。
-
-## 三個值得偷走的設計
-
-**1. 把必然會發生的失敗前移。**
-Google 每隔一陣子改模型名，任何寫死模型名的教材都會過期。
-`check_setup.py` 會拿你的金鑰**真的去問一次 Google「有哪些模型可用」**，
-不在清單裡就印出可用清單叫你 export。
-把 Phase 3 的神秘 404，變成 Phase 0 的一行提示。
-
-**2. 引用必須可回溯，而且要看得見。**
-影片時間戳和 PDF 頁碼是同一件事的不同外衣。做 RAG 最容易被信任的不是答案本身，
-是「我可以點過去自己確認」。前端的時間軸就是把這件事變成畫面。
-
-**3. 方法宣稱要有雙證據。**
-`05_evaluate_rag.py` 做的是 naive 向量 RAG vs 強 RAG 的 LLM-as-judge 盲評
-（隨機換位防位置偏誤）。一個方法可以宣稱「目前最好」，若且唯若：
-**與文獻對齊 + 在自己的評估集上數據不輸 + 每個被否決的候選都留有紀錄**。
-缺任何一條都只是「我覺得不錯」。
-
-## 誠實的限制
-
-這個 repo 的 [EVALUATION.md](EVALUATION.md) 記錄了實跑找到的每一個缺陷——
-包含**已修的**（LangChain 1.x 的 `.content` 是 list 不是字串、跨來源圖譜汙染、
-markdown 亂炸的根因在後端 prompt…）和**刻意沒修的**（judge 與受測 pipeline 同級模型、
-Neo4j 沒建索引、圖譜同義詞未正規化…）。
-
-還沒驗證的也寫在裡面：付費解析路線（LlamaParse / Tavily）、whisper fallback。
-
-> 知道自己的證據有多強，比證據看起來多漂亮更重要。
+---
 
 ## 授權
-
-MIT
+MIT License
